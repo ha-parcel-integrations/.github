@@ -57,8 +57,10 @@ shared parts.
   (`carrier`, `barcode`, `sender`, `receiver`, `status`, `raw_status`,
   `delivered`, `planned_from`, `planned_to`, `history`, …).
 - **Canonical events** on the HA bus:
-  `<carrier>_parcel_registered` / `_status_changed` / `_delivery_time_changed`
-  (plus the outgoing pair where the carrier supports it). The payload is the
+  `<carrier>_parcel_registered` / `_status_changed` / `_delivered` /
+  `_delivery_time_changed` (plus the outgoing pair where the carrier
+  supports it). The hop **to** `delivered` fires only the dedicated
+  `_delivered` event, never also `_status_changed`. The payload is the
   full normalised parcel (including `raw`) plus the account's `device_id`. The
   **aggregator** re-emits these under a unified prefix with `raw` stripped —
   onboard a new carrier there by adding its HA domain to `KNOWN_CARRIERS` +
