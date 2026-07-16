@@ -1,6 +1,6 @@
 # Home Assistant parcel integrations
 
-A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations that track your parcels from Dutch carriers — every one speaking the same canonical parcel contract, so your automations and dashboards work the same no matter who delivers.
+A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations that track your parcels across carriers — every one speaking the same canonical parcel contract, so your automations and dashboards work the same no matter who delivers.
 
 ## Integrations
 
