@@ -6,11 +6,11 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 
 | Integration | Tracks |
 |---|---|
-| [ha-dhl-nl](https://github.com/peternijssen/ha-dhl-nl) | DHL eCommerce NL — incoming & outgoing parcels |
-| [ha-postnl](https://github.com/peternijssen/ha-postnl) | PostNL — parcels & announced MyMail letters |
-| [ha-dpd](https://github.com/peternijssen/ha-dpd) | DPD shipments |
-| [ha-gls](https://github.com/peternijssen/ha-gls) | GLS — account-less, tracking number + postcode |
-| [ha-parcel-aggregator](https://github.com/peternijssen/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
+| [ha-dhl-nl](https://github.com/ha-parcel-integrations/ha-dhl-nl) | DHL eCommerce NL — incoming & outgoing parcels |
+| [ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) | PostNL — parcels & announced MyMail letters |
+| [ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) | DPD shipments |
+| [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
+| [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
 ## How they fit together
 
