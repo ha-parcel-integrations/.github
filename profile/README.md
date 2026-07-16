@@ -10,6 +10,7 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 | [ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) | PostNL — parcels & announced MyMail letters |
 | [ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) | DPD shipments |
 | [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
+| [ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) | Dragonfly Shipping — account-less, tracking number only |
 | [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
 ## How they fit together
