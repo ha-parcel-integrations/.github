@@ -21,9 +21,9 @@ Examples of unacceptable behaviour:
 
 ## Enforcement
 
-Instances of abusive or otherwise unacceptable behaviour may be reported to the
-maintainers via a private report (see [`SECURITY.md`](SECURITY.md)). All reports
-will be reviewed and handled confidentially. Maintainers may remove comments,
+Instances of abusive or otherwise unacceptable behaviour may be reported
+privately to the maintainer ([@peternijssen](https://github.com/peternijssen)).
+All reports will be reviewed and handled confidentially. Maintainers may remove comments,
 commits, issues, or contributions that violate this code, and may block
 repeat offenders.
 

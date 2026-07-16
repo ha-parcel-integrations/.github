@@ -19,6 +19,7 @@ body:
         - PostNL
         - DPD
         - GLS
+        - Dragonfly
         - Other
     validations:
       required: true

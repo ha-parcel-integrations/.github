@@ -58,10 +58,11 @@ shared parts.
   `delivered`, `planned_from`, `planned_to`, `history`, …).
 - **Canonical events** on the HA bus:
   `<carrier>_parcel_registered` / `_status_changed` / `_delivery_time_changed`
-  (plus the outgoing pair where the carrier supports it), with a small,
-  `raw`-stripped payload. The **aggregator** re-emits these under a unified
-  prefix — onboard a new carrier there by adding its HA domain to
-  `KNOWN_CARRIERS` + `CARRIER_EVENT_PREFIXES`, nothing else.
+  (plus the outgoing pair where the carrier supports it). The payload is the
+  full normalised parcel (including `raw`) plus the account's `device_id`. The
+  **aggregator** re-emits these under a unified prefix with `raw` stripped —
+  onboard a new carrier there by adding its HA domain to `KNOWN_CARRIERS` +
+  `CARRIER_EVENT_PREFIXES`, nothing else.
 - **First refresh runs in `__init__.py`** (before forwarding platforms), so a
   transient fetch failure fails setup cleanly and Home Assistant retries — never
   in a platform.
