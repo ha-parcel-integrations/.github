@@ -4,14 +4,14 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 
 ## Integrations
 
-| Integration | Tracks |
-|---|---|
-| [ha-dhl-nl](https://github.com/ha-parcel-integrations/ha-dhl-nl) | DHL eCommerce NL — incoming & outgoing parcels |
-| [ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) | PostNL — parcels & announced MyMail letters |
-| [ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) | DPD shipments |
-| [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
-| [ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) | Dragonfly Shipping — account-less, tracking number only |
-| [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
+| | Integration | Tracks |
+|---|---|---|
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dhl-nl/main/custom_components/dhl_nl/brand/icon.png" width="32" alt="DHL"> | [ha-dhl-nl](https://github.com/ha-parcel-integrations/ha-dhl-nl) | DHL eCommerce NL — incoming & outgoing parcels |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-postnl/main/custom_components/postnl/brand/icon.png" width="32" alt="PostNL"> | [ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) | PostNL — parcels & announced MyMail letters |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dpd/main/custom_components/dpd/brand/icon.png" width="32" alt="DPD"> | [ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) | DPD shipments |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-gls/main/custom_components/gls/brand/icon.png" width="32" alt="GLS"> | [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dragonfly/main/custom_components/dragonfly/brand/icon.png" width="32" alt="Dragonfly"> | [ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) | Dragonfly Shipping — account-less, tracking number only |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-parcel-aggregator/main/custom_components/parcel_aggregator/brand/icon.png" width="32" alt="Parcel Aggregator"> | [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
 ## How they fit together
 
