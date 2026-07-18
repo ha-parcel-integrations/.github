@@ -11,11 +11,12 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dpd/main/custom_components/dpd/brand/icon.png" width="32" alt="DPD"> | [ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) | DPD shipments |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-gls/main/custom_components/gls/brand/icon.png" width="32" alt="GLS"> | [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dragonfly/main/custom_components/dragonfly/brand/icon.png" width="32" alt="Dragonfly"> | [ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) | Dragonfly Shipping — account-less, tracking number only |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-trunkrs/main/custom_components/trunkrs/brand/icon.png" width="32" alt="Trunkrs"> | [ha-trunkrs](https://github.com/ha-parcel-integrations/ha-trunkrs) | Trunkrs — account-less, Trunkrs number + postcode. **Preview:** parcel data is not mapped yet, [help wanted](https://github.com/ha-parcel-integrations/ha-trunkrs/issues/new?template=share_payload.yml) |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-parcel-aggregator/main/custom_components/parcel_aggregator/brand/icon.png" width="32" alt="Parcel Aggregator"> | [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
 ## How they fit together
 
-Each carrier integration normalises its data to a shared `ParcelStatus` enum and a common parcel shape, and fires canonical events (`<carrier>_parcel_registered` / `_status_changed` / `_delivery_time_changed`). The **Parcel Aggregator** subscribes to all of them and re-emits a unified stream — so you write one automation like *"when any parcel is out for delivery"* instead of one per carrier.
+Each carrier integration normalises its data to a shared `ParcelStatus` enum and a common parcel shape, and fires canonical events (`<carrier>_parcel_registered` / `_status_changed` / `_delivered` / `_delivery_time_changed`). The **Parcel Aggregator** subscribes to all of them and re-emits a unified stream — so you write one automation like *"when any parcel is out for delivery"* instead of one per carrier.
 
 ## Installation
 
