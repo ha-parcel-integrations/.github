@@ -14,6 +14,11 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-trunkrs/main/custom_components/trunkrs/brand/icon.png" width="32" alt="Trunkrs"> | [ha-trunkrs](https://github.com/ha-parcel-integrations/ha-trunkrs) | Trunkrs — account-less, Trunkrs number + postcode. **Early release:** statuses other than "delivered" still report `unknown`, [help wanted](https://github.com/ha-parcel-integrations/ha-trunkrs/issues/new?template=unrecognised_status.yml) |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-parcel-aggregator/main/custom_components/parcel_aggregator/brand/icon.png" width="32" alt="Parcel Aggregator"> | [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
+📦 **Missing your carrier, or want one of these in another country?**
+[Request it](https://github.com/ha-parcel-integrations/.github/discussions/new?category=carrier-requests) —
+the code is rarely the blocker, real tracking data is, so a request from
+someone who receives those parcels helps most.
+
 ## How they fit together
 
 Each carrier integration normalises its data to a shared `ParcelStatus` enum and a common parcel shape, and fires canonical events (`<carrier>_parcel_registered` / `_status_changed` / `_delivered` / `_delivery_time_changed`). The **Parcel Aggregator** subscribes to all of them and re-emits a unified stream — so you write one automation like *"when any parcel is out for delivery"* instead of one per carrier.
