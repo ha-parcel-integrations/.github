@@ -1,4 +1,4 @@
-title: "[carrier] "
+title: "[request] "
 labels: ["carrier-request"]
 body:
   - type: markdown
@@ -8,23 +8,34 @@ body:
         knowing: **the hard part is almost never the code — it is the data.**
 
         Every integration here talks to the carrier's own consumer tracking
-        page. To build one we need to see real responses for a real parcel,
-        in every state it passes through. Without someone who actually
-        receives parcels from that carrier, a request tends to stall.
-
-        So the most valuable answer below is the last one.
+        page, which is undocumented and differs per carrier *and per country*.
+        To build or extend one we need to see real responses for a real parcel.
+        Without someone who actually receives those parcels, a request tends to
+        stall — so the most valuable answer below is the last one.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What are you asking for?
+      options:
+        - "A carrier we do not support at all"
+        - "A carrier we already support, but in another country"
+    validations:
+      required: true
   - type: input
     id: carrier
     attributes:
       label: Which carrier?
-      placeholder: "e.g. Bpost"
+      placeholder: "e.g. Bpost, or DPD"
     validations:
       required: true
   - type: input
     id: country
     attributes:
       label: Which country do you receive parcels in?
-      description: Carriers often run a different tracking backend per country, so this matters even for a carrier we already support.
+      description: |
+        This matters even for a carrier we already ship. Carriers routinely run
+        a separate tracking backend per country — adding one is never just a
+        setting, it is fresh reverse-engineering against a real parcel.
       placeholder: "e.g. Belgium"
     validations:
       required: true
@@ -32,15 +43,22 @@ body:
     id: tracking_page
     attributes:
       label: The tracking page you normally use
-      description: The URL you land on from their notification e-mail. Please remove the tracking number itself.
+      description: |
+        The URL you land on from their notification e-mail — the domain alone
+        already tells us a lot. Please remove the tracking number itself.
       placeholder: "e.g. https://track.bpost.cloud/btr/parcel/…"
   - type: dropdown
     id: account
     attributes:
-      label: Does the carrier have a customer account?
-      description: An account with a parcel overview means we can discover parcels automatically. Without one, you register each tracking number yourself — like GLS, Dragonfly and Trunkrs.
+      label: Does the carrier have a customer account in that country?
+      description: |
+        An account with a parcel overview lets us discover parcels
+        automatically, like DHL, PostNL and DPD. Without one, you register each
+        tracking number yourself — like GLS, Dragonfly and Trunkrs. Both models
+        are fine; they are simply different integrations.
       options:
-        - "Yes — I log in and see all my parcels"
+        - "Yes, and I have one — I log in and see all my parcels"
+        - "Yes, but I do not have an account myself"
         - "No — I only get a tracking link per parcel"
         - "Not sure"
     validations:
@@ -49,7 +67,10 @@ body:
     id: help
     attributes:
       label: Could you help test?
-      description: This is the deciding factor. It usually means running a pre-release and pasting the (redacted) diagnostics for a parcel or two.
+      description: |
+        This is the deciding factor. It usually means running a pre-release and
+        pasting the (redacted) diagnostics for a parcel or two, and reporting
+        back what a parcel was actually doing when it showed an unknown status.
       options:
         - "Yes — I receive parcels from them regularly"
         - "Yes, but only occasionally"
@@ -60,4 +81,6 @@ body:
     id: extra
     attributes:
       label: Anything else?
-      description: Volume, how the tracking page behaves, an existing integration elsewhere — anything that helps.
+      description: |
+        Volume, how the tracking page behaves, whether it asks for a postcode,
+        an existing integration elsewhere — anything that helps.
