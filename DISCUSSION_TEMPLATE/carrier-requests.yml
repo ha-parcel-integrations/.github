@@ -1,0 +1,63 @@
+title: "[carrier] "
+labels: ["carrier-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! Before filling this in, one thing worth
+        knowing: **the hard part is almost never the code — it is the data.**
+
+        Every integration here talks to the carrier's own consumer tracking
+        page. To build one we need to see real responses for a real parcel,
+        in every state it passes through. Without someone who actually
+        receives parcels from that carrier, a request tends to stall.
+
+        So the most valuable answer below is the last one.
+  - type: input
+    id: carrier
+    attributes:
+      label: Which carrier?
+      placeholder: "e.g. Bpost"
+    validations:
+      required: true
+  - type: input
+    id: country
+    attributes:
+      label: Which country do you receive parcels in?
+      description: Carriers often run a different tracking backend per country, so this matters even for a carrier we already support.
+      placeholder: "e.g. Belgium"
+    validations:
+      required: true
+  - type: input
+    id: tracking_page
+    attributes:
+      label: The tracking page you normally use
+      description: The URL you land on from their notification e-mail. Please remove the tracking number itself.
+      placeholder: "e.g. https://track.bpost.cloud/btr/parcel/…"
+  - type: dropdown
+    id: account
+    attributes:
+      label: Does the carrier have a customer account?
+      description: An account with a parcel overview means we can discover parcels automatically. Without one, you register each tracking number yourself — like GLS, Dragonfly and Trunkrs.
+      options:
+        - "Yes — I log in and see all my parcels"
+        - "No — I only get a tracking link per parcel"
+        - "Not sure"
+    validations:
+      required: true
+  - type: dropdown
+    id: help
+    attributes:
+      label: Could you help test?
+      description: This is the deciding factor. It usually means running a pre-release and pasting the (redacted) diagnostics for a parcel or two.
+      options:
+        - "Yes — I receive parcels from them regularly"
+        - "Yes, but only occasionally"
+        - "No, I am just requesting it"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Volume, how the tracking page behaves, an existing integration elsewhere — anything that helps.

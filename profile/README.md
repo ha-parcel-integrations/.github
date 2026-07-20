@@ -24,4 +24,12 @@ All integrations are distributed via [HACS](https://hacs.xyz/). See each reposit
 
 ## Community
 
+📦 **Missing a carrier, or want one of these in another country?** Open a
+[carrier request](https://github.com/ha-parcel-integrations/.github/discussions/new/choose).
+The code is rarely the blocker — real tracking data is, so a request from
+someone who actually receives parcels from that carrier is worth a great deal.
+
 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
+
+🐛 Found a bug, or does a parcel report an `unknown` status? That belongs in
+the issue tracker of the integration itself.
