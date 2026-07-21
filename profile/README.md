@@ -1,6 +1,6 @@
 # Home Assistant parcel integrations
 
-A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations that track your parcels across carriers — every one speaking the same canonical parcel contract, so your automations and dashboards work the same no matter who delivers.
+A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations that track your parcels across carriers and countries — every one speaking the same canonical parcel contract, so your automations and dashboards work the same no matter who delivers.
 
 ## Integrations
 
@@ -12,6 +12,7 @@ A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations 
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-gls/main/custom_components/gls/brand/icon.png" width="32" alt="GLS"> | [ha-gls](https://github.com/ha-parcel-integrations/ha-gls) | GLS — account-less, tracking number + postcode |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-dragonfly/main/custom_components/dragonfly/brand/icon.png" width="32" alt="Dragonfly"> | [ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) | Dragonfly Shipping — account-less, tracking number only |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-trunkrs/main/custom_components/trunkrs/brand/icon.png" width="32" alt="Trunkrs"> | [ha-trunkrs](https://github.com/ha-parcel-integrations/ha-trunkrs) | Trunkrs — account-less, Trunkrs number + postcode. **Early release:** statuses other than "delivered" still report `unknown`, [help wanted](https://github.com/ha-parcel-integrations/ha-trunkrs/issues/new?template=unrecognised_status.yml) |
+| <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-cainiao/main/custom_components/cainiao/brand/icon.png" width="32" alt="Cainiao"> | [ha-cainiao](https://github.com/ha-parcel-integrations/ha-cainiao) | Cainiao — cross-border parcels from AliExpress, Temu and similar, account-less. **Early release:** the status mapping is not yet confirmed against a real parcel, [help wanted](https://github.com/ha-parcel-integrations/ha-cainiao/issues/new?template=unrecognised_status.yml) |
 | <img src="https://raw.githubusercontent.com/ha-parcel-integrations/ha-parcel-aggregator/main/custom_components/parcel_aggregator/brand/icon.png" width="32" alt="Parcel Aggregator"> | [ha-parcel-aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) | Rolls every carrier above into one unified set of sensors and a single event stream |
 
 📦 **Missing your carrier, or want one of these in another country?**
