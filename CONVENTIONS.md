@@ -34,6 +34,22 @@ shared parts.
   line (no hard-wrapping inside a bullet), and never cross-reference other repos.
 - Leave dev-only changes (gitignore, CI, tooling) out of the notes.
 
+## Pre-1.0 releases (early carriers)
+
+A carrier below `1.0.0` still has unconfirmed data — inferred status vocabularies,
+guessed payload shapes, roles or fields we've never seen populated in live data.
+
+- **Every such unknown must log a one-shot `WARNING`** with a copy-paste
+  `issues/new?template=unrecognised_status.yml` link, so real users report it.
+  Passively waiting for a tester to share diagnostics rarely yields the data.
+- **`WARNING`, never `INFO`/`DEBUG`.** Home Assistant's default log level hides
+  those, so nobody sees — or reports — them. Even a "confirm this shape looks
+  right" prompt is a `WARNING`.
+- Log **keys / structure, not values**, for anything that could carry PII
+  (a pickup address, a recipient name).
+- Cross-check the repo's `TODO.md` "needs a tester" list against the code: each
+  item should have a log line that fires when a real user hits it.
+
 ## Testing
 
 - Tests use `pytest`. Run with coverage:
