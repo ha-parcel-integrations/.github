@@ -64,6 +64,12 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   + `.claude/`).
 - `docs/api/` is **local-only** (gitignored) — reverse-engineering notes are not
   published.
+- **API mechanics belong in `docs/api/`, not `CLAUDE.md`.** Endpoints, request
+  params/headers, auth flows, response envelopes, payload→canonical mapping
+  tables, status-code vocabularies and timestamp formats go in `docs/api/`.
+  `CLAUDE.md` holds only HA-integration decisions (lifecycle, entities, options
+  model, caching/cost-control, redaction, event suppression) plus a one-line
+  pointer to `docs/api/`. Do not duplicate API detail into `CLAUDE.md`.
 
 ## Home Assistant developer docs (integrations)
 
