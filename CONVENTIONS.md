@@ -6,8 +6,9 @@ shared parts.
 
 > **General vs project-specific.** The *Workflow*, *Commits*, *Versioning &
 > releases*, and *Testing* sections apply to any repo (integrations and, later,
-> Lovelace cards). The *Parcel contract* section applies only to the carrier
-> integrations and the aggregator.
+> Lovelace cards). The *Home Assistant developer docs*, *Deliberate skill
+> divergences*, and *Parcel contract* sections apply only to the Home Assistant
+> integrations (and, for the parcel contract, the aggregator).
 
 ## Workflow
 
@@ -63,6 +64,41 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   + `.claude/`).
 - `docs/api/` is **local-only** (gitignored) — reverse-engineering notes are not
   published.
+
+## Home Assistant developer docs (integrations)
+
+HA's integration patterns evolve. **Do not rely on memory of past patterns** —
+fetch the canonical page before changing a topic area, and check the
+[developer blog](https://developers.home-assistant.io/blog) and
+[architecture discussions](https://github.com/home-assistant/architecture/discussions)
+before introducing anything you only "know" from training data. Recent posts
+trump older recollection.
+
+| When you change | Fetch first |
+|---|---|
+| Entity properties, naming, lifecycle, attributes | https://developers.home-assistant.io/docs/core/entity/ |
+| Sensor specifics (state/device classes, units) | https://developers.home-assistant.io/docs/core/entity/sensor |
+| Config flow, options flow, reauth, reconfigure | https://developers.home-assistant.io/docs/config_entries_config_flow_handler |
+| DataUpdateCoordinator pattern | https://developers.home-assistant.io/docs/integration_fetching_data |
+| Quality scale rules | https://developers.home-assistant.io/docs/core/integration-quality-scale |
+| Diagnostics | https://developers.home-assistant.io/docs/core/integration/diagnostics |
+| Translations | https://developers.home-assistant.io/docs/internationalization/core |
+
+Branding is handled by each repo's **local `brand/` folder** (HACS reads
+`icon.png` from it). The official `home-assistant/brands` repo is Core-only and
+does not apply to these HACS integrations.
+
+## Deliberate skill divergences (integrations)
+
+These diverge from the `ha-integration-knowledge` skill on purpose — that skill
+targets HA **Core**; these are **HACS** integrations. Do not "fix" them to match
+the core rule.
+
+- **Polling interval is user-configurable** via the options flow (the core skill
+  says it must not be) — a tunable poll cadence is a wanted HACS feature.
+- **Inline API client** (no separate published library) is acceptable here.
+- **Synchronous request patterns** where a carrier's API forces them are
+  acceptable; do not re-flag.
 
 ## Parcel contract (carrier integrations + aggregator)
 
