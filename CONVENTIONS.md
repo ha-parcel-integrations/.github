@@ -94,6 +94,17 @@ Branding is handled by each repo's **local `brand/` folder** (HACS reads
 `icon.png` from it). The official `home-assistant/brands` repo is Core-only and
 does not apply to these HACS integrations.
 
+## Claude skills
+
+Skills are installed **globally** (`~/.claude/skills/`), not per repo. The two
+in use — `ha-integration-knowledge` and `home-assistant-custom-integration` —
+are generic HA-integration knowledge with nothing carrier-specific in them, so
+one copy serves every repo in the suite and no repo can drift from another.
+
+Do not commit a `skills-lock.json` to a carrier repo. `.claude/` is gitignored
+everywhere, so a per-repo lock file pins content that no clone can see and no
+tooling here reads. The global lock lives at `~/.claude/skills-lock.json`.
+
 ## Deliberate skill divergences (integrations)
 
 These diverge from the `ha-integration-knowledge` skill on purpose — that skill
