@@ -20,8 +20,10 @@ shared parts.
 
 ## Commits
 
-- **Single-line commit messages.** No body, no trailers.
+- **Single-line commit messages.** The description is one line — no body.
 - Reference an issue in the subject where relevant (e.g. `… (#12)`).
+- A `Co-Authored-By: Claude …` trailer is allowed, on its own line after a blank
+  line. No other trailers.
 
 ## Versioning & releases
 
