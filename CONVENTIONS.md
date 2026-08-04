@@ -47,8 +47,16 @@ shared parts.
   📦 [See every supported carrier](https://github.com/ha-parcel-integrations) — new ones land regularly.
   ```
 
-  The org profile README is the single source of truth for that list; it is
-  generated per repo, so nothing in a release note goes out of date.
+  The org profile README is the single source of truth for that list, so
+  nothing in a release note goes out of date.
+
+  **`profile/README.md` is generated — never edit it by hand.** It is rendered
+  from `data/carriers.yml` in the
+  [`ha-parcel-integrations.github.io`](https://github.com/ha-parcel-integrations/ha-parcel-integrations.github.io)
+  repo and pushed here by that repo's deploy workflow; a manual edit is
+  overwritten on the next run. A new carrier gets one entry in that YAML file
+  and everything else — the profile table, the docs site, the repo's homepage
+  link — follows.
 - **The aggregator names the carriers it adds, and links each one.** When a
   release adds carrier support, write the carrier names as links to their repos
   (`[Packeta](https://github.com/ha-parcel-integrations/ha-packeta)`), not as
