@@ -36,7 +36,9 @@ someone who receives those parcels helps most.
 
 ## How they fit together
 
-Each carrier integration normalises its data to a shared `ParcelStatus` enum and a common parcel shape, and fires canonical events (`<carrier>_parcel_registered` / `_status_changed` / `_delivered` / `_delivery_time_changed`). The **Parcel Aggregator** subscribes to all of them and re-emits a unified stream — so you write one automation like *"when any parcel is out for delivery"* instead of one per carrier.
+Each carrier integration is standalone and normalises its data to a shared `ParcelStatus` enum and a common parcel shape, firing canonical events (`<carrier>_parcel_registered` / `_status_changed` / `_delivered` / `_delivery_time_changed`). Install just the carriers that deliver to you — nothing else is required.
+
+Running several? The optional **Parcel Aggregator** subscribes to all of them and re-emits a unified stream, so you write one automation like *"when any parcel is out for delivery"* instead of one per carrier.
 
 The full contract is documented at **[ha-parcel-integrations.github.io](https://ha-parcel-integrations.github.io/contract/)**.
 
