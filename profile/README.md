@@ -4,7 +4,7 @@
 
 A suite of [Home Assistant](https://www.home-assistant.io/) custom integrations that track your parcels across carriers and countries — every one speaking the same canonical parcel contract, so your automations and dashboards work the same no matter who delivers.
 
-📖 **[Read the docs](https://ha-parcel-integrations.github.io/)** — carrier list, the parcel contract, and a copy-paste automation cookbook.
+📖 **[Read the docs](https://ha-parcel-integrations.github.io/)** — carrier list, the parcel contract, and copy-paste automations and dashboard cards.
 
 ## Integrations
 
