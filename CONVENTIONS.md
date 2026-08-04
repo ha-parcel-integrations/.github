@@ -85,6 +85,24 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
 - Integrations keep coverage **above 95%**.
 - A code change updates the docs (`README` / `CLAUDE.md`) where behaviour changes.
 
+## User-facing content (READMEs, examples, docs site)
+
+- **Everything a user reads is English.** That includes the strings *inside*
+  example automations and dashboard cards — notification titles, card titles,
+  status labels, and Jinja variable names. The audience is international; a
+  Dutch `title: "Pakket onderweg"` is not copy-pasteable for most of it. The
+  examples in `ha-parcel-aggregator/examples/` are rendered verbatim onto the
+  docs site, so anything left in Dutch ships to the front page of the suite.
+- **The aggregator is optional — never write as though it is required.** Every
+  carrier integration is standalone and depends on nothing else. The aggregator
+  earns its place only from the second carrier onward, and framing it as a
+  required step (a numbered install stage, "and then add the aggregator") makes
+  the suite look heavier than it is. Show the per-carrier way first, the unified
+  way second.
+- Say "package" as well as "parcel" in titles and descriptions. The code and the
+  contract use *parcel* throughout, but "package tracking" is the more common
+  search term in English.
+
 ## Repo hygiene
 
 - One shared `.gitignore` across repos (Python + tooling + editors + `.DS_Store`
