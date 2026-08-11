@@ -45,6 +45,7 @@ shared parts.
   ---
 
   📦 [See every supported carrier](https://github.com/ha-parcel-integrations) — new ones land regularly.
+  💛 [Support the project](https://ha-parcel-integrations.github.io/sponsor/)
   ```
 
   The org profile README is the single source of truth for that list, so
