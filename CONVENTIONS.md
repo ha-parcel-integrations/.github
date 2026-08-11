@@ -36,6 +36,10 @@ shared parts.
   (`New features`, `Bug fixes`, `Other improvements`, `Credits`), one bullet per
   line (no hard-wrapping inside a bullet), and never cross-reference other repos.
 - Leave dev-only changes (gitignore, CI, tooling) out of the notes.
+- **If the repo has open `help wanted` issues, link them before the footer.**
+  One line, e.g. `🙋 [N open questions need a real parcel to answer](https://github.com/ha-parcel-integrations/<repo>/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)`.
+  Pre-1.0 carriers almost always have some — this is how a tester finds them
+  without digging through the issue tracker.
 - **No "Also new in the family" section.** New sibling carriers are not listed in
   a carrier's release notes — the list outgrew the format and went stale the
   moment the next carrier landed. Every release ends with the same footer
@@ -76,7 +80,7 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   right" prompt is a `WARNING`.
 - Log **keys / structure, not values**, for anything that could carry PII
   (a pickup address, a recipient name).
-- Cross-check the repo's `TODO.md` "needs a tester" list against the code: each
+- Cross-check the repo's open `help wanted` issues against the code: each
   item should have a log line that fires when a real user hits it.
 
 ## Testing
