@@ -103,6 +103,25 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   contract use *parcel* throughout, but "package tracking" is the more common
   search term in English.
 
+## Translations (integrations)
+
+- **`en.json` is mandatory and is the source of truth** for every string — add
+  or change a string there first, then propagate.
+- **Add a language when the carrier actually supports that country**, matching
+  the countries named in the repo's own README/config flow (e.g. Helthjem →
+  Norwegian, GLS → Dutch + German, Sameday → Romanian + Hungarian +
+  Bulgarian). A carrier with a country picker gets one translation per
+  option in that picker.
+- **A carrier with no specific country ("worldwide") stays English-only** —
+  don't invent a translation for it.
+- **Never remove an existing translation file**, even one that doesn't match
+  a currently-supported country (e.g. `nl.json` predates this rule in most
+  repos and stays as-is). This convention is additive only — it explains what
+  to add, not a reason to prune what's already there.
+- Keep the JSON key structure byte-for-byte identical across every language
+  file in a repo; only the leaf string values change. Brand/carrier names,
+  placeholders (`{…}`) and service/attribute identifiers are never translated.
+
 ## Repo hygiene
 
 - One shared `.gitignore` across repos (Python + tooling + editors + `.DS_Store`
