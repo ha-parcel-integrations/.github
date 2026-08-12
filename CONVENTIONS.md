@@ -40,6 +40,17 @@ shared parts.
   One line, e.g. `🙋 [N open questions need a real parcel to answer](https://github.com/ha-parcel-integrations/<repo>/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)`.
   Pre-1.0 carriers almost always have some — this is how a tester finds them
   without digging through the issue tracker.
+- **The `1.0.0` bar.** A carrier's *first* release can ship at `1.0.0` instead
+  of the usual pre-1.0 start when, independent of the code itself: the happy
+  path has been confirmed end-to-end on a real parcel, its capabilities (auth
+  flow, endpoints used) are settled, and its status vocabulary is complete and
+  maps cleanly onto `ParcelStatus`. Remaining unknowns are fine as long as
+  they're edge cases — uncommon delivery outcomes, rate limits, token
+  lifetimes — that degrade safely (falling to `unknown` with shape-logging, or
+  a clear reauth signal) instead of blocking. That no other carrier has
+  shipped at `1.0.0` before is not itself a reason to hold one back that
+  clears this bar — judge each carrier on what's actually still unknown about
+  it, not on suite precedent.
 - **No "Also new in the family" section.** New sibling carriers are not listed in
   a carrier's release notes — the list outgrew the format and went stale the
   moment the next carrier landed. Every release ends with the same footer
