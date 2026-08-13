@@ -59,11 +59,11 @@ shared parts.
   ```markdown
   ---
 
-  📦 [See every supported carrier](https://github.com/ha-parcel-integrations) — new ones land regularly.
+  📦 [See every supported carrier](https://ha-parcel-integrations.github.io/carriers/) — new ones land regularly.
   💛 [Support the project](https://ha-parcel-integrations.github.io/sponsor/)
   ```
 
-  The org profile README is the single source of truth for that list, so
+  The docs site's carriers page is the single source of truth for that list, so
   nothing in a release note goes out of date.
 
   **`profile/README.md` is generated — never edit it by hand.** It is rendered
