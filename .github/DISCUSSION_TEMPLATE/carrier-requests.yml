@@ -12,6 +12,11 @@ body:
         To build or extend one we need to see real responses for a real parcel.
         Without someone who actually receives those parcels, a request tends to
         stall — so the most valuable answer below is the last one.
+
+        Rather not post a tracking link or parcel data in a public discussion?
+        Send it to us privately instead via
+        [our contact form](https://yetanothersmarthome.com/contact-me/) —
+        just mention which carrier and country it's for.
   - type: dropdown
     id: kind
     attributes:
@@ -45,7 +50,9 @@ body:
       label: The tracking page you normally use
       description: |
         The URL you land on from their notification e-mail — the domain alone
-        already tells us a lot. Please remove the tracking number itself.
+        already tells us a lot. Please remove the tracking number itself, or
+        [send it to us privately](https://yetanothersmarthome.com/contact-me/)
+        if you'd rather share the full link.
       placeholder: "e.g. https://track.bpost.cloud/btr/parcel/…"
   - type: dropdown
     id: account
