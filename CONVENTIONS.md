@@ -30,6 +30,10 @@ shared parts.
 - **Semantic versioning.** New user-facing feature → **minor** (`0.X.0`); bug fix
   only → **patch** (`0.0.X`).
 - **Tags carry no `v` prefix** (e.g. `4.5.0`, not `v4.5.0`).
+- **Pre-releases use a `bN` suffix, no separator** (e.g. `2.0.0b1`, `2.0.0b2`,
+  numbering from `1`) — for a build that ships ahead of a real-parcel gate
+  clearing, or otherwise needs testers before it's trusted as a normal release.
+  Mark the GitHub release itself as a pre-release too.
 - Release sequence: bump the version in `manifest.json` → commit
   `Bump version to X.Y.Z` → tag → push (branch + tag) → publish a GitHub release.
 - **Release notes are user-facing only.** Use the shared `##` house style
