@@ -231,3 +231,17 @@ the core rule.
 - Unmapped statuses/events log a **one-shot warning** with a copy-paste
   `issues/new` line; users report them via the *Unrecognised parcel status*
   issue template.
+- **Pickup point, not ServicePoint/parcel shop/locker.** Use "pickup point"
+  as the one generic term for this concept in docs, conventions, and any
+  new shared identifier — it already matches `ParcelStatus.AT_PICKUP_POINT`
+  and the normalised `pickup_point` parcel field. A carrier's own
+  human-facing sensor name may still use its brand term (DHL's "ServicePoint",
+  PostNL's "Punt", …), same as friendly names already vary per carrier — but
+  don't introduce a second generic term alongside "pickup point".
+- **`awaiting_pickup` sensor.** Any carrier whose parcels can reach
+  `ParcelStatus.AT_PICKUP_POINT` from a real raw status/code exposes an
+  `awaiting_pickup` sensor (arrived, ready for collection). Reference
+  implementations: `ha-dhl-nl`, `ha-dpd`, `ha-gls`, `ha-inpost`. A carrier
+  whose statuses never actually reach `AT_PICKUP_POINT` (no pickup-point
+  delivery method) is exempt — say so explicitly in that repo's own
+  `CLAUDE.md` so the gap reads as a decision, not an oversight.
