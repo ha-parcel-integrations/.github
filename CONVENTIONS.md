@@ -104,6 +104,16 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   `python -m pytest tests/ --cov=custom_components.<domain>`.
 - Integrations keep coverage **above 95%**.
 - A code change updates the docs (`README` / `CLAUDE.md`) where behaviour changes.
+- **Fixtures built from a real captured payload must have every identifier
+  scrubbed before they're committed** — tracking/parcel number, postal code,
+  address, name, phone, email, any UUID tied to the sender who shared it.
+  Swap in made-up values that still satisfy the field's format (regex, length,
+  checksum) so the test stays meaningful. This applies anywhere the value ends
+  up: not just the file the tester's payload first landed in, but every other
+  fixture across the repo's test suite that was copy-pasted from the same
+  capture (`grep -rn <the-real-value> tests/`) — including
+  string constants that carry a real value into shipped `strings.json` UI
+  copy (an "example" placeholder, a doc snippet).
 
 ## User-facing content (READMEs, examples, docs site)
 
