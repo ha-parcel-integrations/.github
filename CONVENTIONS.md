@@ -159,14 +159,14 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
 - **API mechanics belong in the private research repo, not in the integration
   repo.** Endpoints, request params/headers, auth flows, response envelopes,
   payload→canonical mapping tables, status-code vocabularies and timestamp
-  formats go in `carrier-research/api/<slug>/` (slug = repo name minus `ha-`),
+  formats go in `carrier-research/<slug>/api/` (slug = repo name minus `ha-`),
   where they are version-controlled and shared instead of living on one machine.
   Do not create — or re-create — a repo-local `docs/api/`; the shared
   `.gitignore` still excludes that path so a stray local scratch file can never
   be published, but it is no longer where notes belong.
 - `CLAUDE.md` holds only HA-integration decisions (lifecycle, entities, options
   model, caching/cost-control, redaction, event suppression) plus a one-line
-  pointer to `carrier-research/api/<slug>/`. Do not duplicate API detail into
+  pointer to `carrier-research/<slug>/api/`. Do not duplicate API detail into
   `CLAUDE.md`.
 - Reverse-engineering notes are never published: nothing from the research repo
   — least of all the name of a project an endpoint was reconstructed from —
