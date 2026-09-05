@@ -37,7 +37,7 @@ published.
 
 ## Requirements per carrier repository
 
-- `.github/suite.json` with `kind`, `domain` and `research_api_path`.
+- `.github/suite.json` with `kind` and `domain`.
 - `.github/workflows/validate.yml` and `.github/workflows/release.yml` callers.
 - A `RELEASE_BOT_TOKEN` secret before the first live release: repository
   `Contents: read/write` and `Pull requests: read/write`, allowed to push

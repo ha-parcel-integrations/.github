@@ -55,9 +55,6 @@ def main() -> int:
     if CONVENTIONS not in claude:
         fail("CLAUDE.md must point to the shared conventions")
         failures += 1
-    if suite["research_api_path"] not in claude:
-        fail("CLAUDE.md must contain its private research API pointer")
-        failures += 1
 
     if (root / "docs" / "api").exists():
         fail("docs/api/ must not be tracked in a public integration repository")
