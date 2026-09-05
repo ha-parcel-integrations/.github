@@ -206,14 +206,26 @@ Do not commit a `skills-lock.json` to a carrier repo. `.claude/` is gitignored
 everywhere, so a per-repo lock file pins content that no clone can see and no
 tooling here reads. The global lock lives at `~/.claude/skills-lock.json`.
 
+## Dynamic polling (integrations)
+
+No user-facing polling interval. `coordinator.py` recomputes `update_interval`
+after every refresh: a quiet window (00:00–06:00, with two daily catch-up
+anchors), a hot tier (15 min) for a tracked parcel `out_for_delivery` within
+an hour of `planned_from`, a mid tier (45 min) for everything else in flight,
+a full stop for account-less carriers when nothing is tracked, a per-install
+stagger, and 429-aware backoff. See `ha-carrier-template/scaffold/CLAUDE.md`
+("Dynamic polling") for the authoritative spec — this is a summary pointer,
+not a second copy to keep in sync by hand.
+
+A carrier that throttles harder than the 429 backoff handles documents that
+divergence in its own repo's `CLAUDE.md`, not here.
+
 ## Deliberate skill divergences (integrations)
 
 These diverge from the `ha-integration-knowledge` skill on purpose — that skill
 targets HA **Core**; these are **HACS** integrations. Do not "fix" them to match
 the core rule.
 
-- **Polling interval is user-configurable** via the options flow (the core skill
-  says it must not be) — a tunable poll cadence is a wanted HACS feature.
 - **Inline API client** (no separate published library) is acceptable here.
 - **Synchronous request patterns** where a carrier's API forces them are
   acceptable; do not re-flag.
