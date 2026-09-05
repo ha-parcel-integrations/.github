@@ -21,6 +21,15 @@ shared parts.
 ## Commits
 
 - **Single-line commit messages.** The description is one line — no body.
+- **Use Conventional Commit subjects.** Every human- or agent-created commit
+  starts with one of `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `ci:`,
+  `chore:`, `build:`, `perf:`, `style:` or `revert:` (an optional scope and
+  breaking `!` are allowed). Use `feat:` only for a user-facing feature and
+  `fix:` only for a user-facing bug fix: release automation derives the next
+  version and draft notes from precisely those two types. Use `chore:` or
+  `refactor:` for internal maintenance so it does not propose a release.
+- The generated release commit is the sole exception and is exactly
+  `Bump version to X.Y.Z` (or `X.Y.ZbN`).
 - Reference an issue in the subject where relevant (e.g. `… (#12)`).
 - A `Co-Authored-By: Claude …` trailer is allowed, on its own line after a blank
   line. No other trailers.
