@@ -28,6 +28,23 @@ shared parts.
   `fix:` only for a user-facing bug fix: release automation derives the next
   version and draft notes from precisely those two types. Use `chore:` or
   `refactor:` for internal maintenance so it does not propose a release.
+- **A `feat:`/`fix:` subject is the release note.** Release automation copies it
+  verbatim into `New features` or `Bug fixes`, so write it for the person
+  updating the integration, not for the diff. Say what changed *for them* and
+  name the thing they see — the sensor, the setting, the notification — not the
+  module, function or field that moved. Avoid the vague verbs that read fine in
+  a diff and say nothing in a changelog: *improve*, *standardize*, *expose*,
+  *update*, *additional*, *various*. No trailing period; the bullet supplies it.
+
+  | Instead of | Write |
+  |---|---|
+  | `feat: add awaiting pickup sensor` | `feat: add a sensor counting parcels waiting at a pickup point` |
+  | `feat: expose additional parcel details` | `feat: show the delivery window and pickup point on each parcel` |
+  | `fix: standardize translation terminology` | `fix: use the same wording for pickup points in every language` |
+
+  Other types are never published, so they only need to be clear to a
+  maintainer. If a change is genuinely hard to state in one user-facing line,
+  that is a signal it is two commits, or a `refactor:`.
 - The generated release commit is the sole exception and is exactly
   `Bump version to X.Y.Z` (or `X.Y.ZbN`).
 - Reference an issue in the subject where relevant (e.g. `… (#12)`).
@@ -43,11 +60,26 @@ shared parts.
   numbering from `1`) — for a build that ships ahead of a real-parcel gate
   clearing, or otherwise needs testers before it's trusted as a normal release.
   Mark the GitHub release itself as a pre-release too.
-- Release sequence: bump the version in `manifest.json` → commit
-  `Bump version to X.Y.Z` → tag → push (branch + tag) → publish a GitHub release.
+- **Automated carriers release through a generated PR.** After a successful
+  `Validate` run on `main`, the `Release` workflow opens or updates one
+  `automation/release` PR that bumps `manifest.json` and carries the proposed
+  notes. Merge it with **squash** when the version and notes are right; the tag
+  and GitHub release follow automatically. A rebase or merge commit publishes
+  nothing. See `.github/AUTOMATION.md` for the details. Carriers not yet on the
+  shared workflows follow the manual sequence: bump the version in
+  `manifest.json` → commit `Bump version to X.Y.Z` → tag → push (branch + tag)
+  → publish a GitHub release.
+- **The release PR body is the release, verbatim — edit it before merging.**
+  That is where the judgement a rule cannot make belongs: naming who reported an
+  issue, merging two commits into one clearer bullet, adding context a subject
+  had no room for. A later `feat:`/`fix:` push regenerates the body, so edit it
+  shortly before merging.
 - **Release notes are user-facing only.** Use the shared `##` house style
   (`New features`, `Bug fixes`, `Other improvements`, `Credits`), one bullet per
   line (no hard-wrapping inside a bullet), and never cross-reference other repos.
+  A section with nothing to say is omitted rather than filled with a placeholder
+  sentence; `Credits` in particular is worth adding by hand whenever someone
+  reported or tested the change.
 - Leave dev-only changes (gitignore, CI, tooling) out of the notes.
 - **If the repo has open `help wanted` issues, link them before the footer.**
   One line, e.g. `🙋 [N open questions need a real parcel to answer](https://github.com/ha-parcel-integrations/<repo>/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)`.
