@@ -38,6 +38,7 @@ jobs:
 
       - name: Check workflow syntax
         run: |
+          pip install --quiet pyyaml
           python - <<'PY'
           import pathlib, sys, yaml
           for path in sorted(pathlib.Path(".github/workflows").glob("*.yml")):
