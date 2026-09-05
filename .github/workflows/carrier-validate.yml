@@ -128,8 +128,18 @@ jobs:
             exit 0
           elif [ "$EVENT_NAME" = "pull_request" ]; then
             commit_range="$BASE_SHA..$PR_HEAD_SHA"
-          elif [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            commit_range="$HEAD_SHA^..$HEAD_SHA"
+          elif [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            # A force-push orphans the previous tip, so it is not fetched and
+            # BEFORE..HEAD cannot resolve. Fall back to everything since the
+            # last release, which is exactly the range that was rewritten.
+            last_tag=$(git tag --list --sort=-v:refname \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+            if [ -n "$last_tag" ]; then
+              commit_range="$last_tag..$HEAD_SHA"
+            else
+              commit_range="$HEAD_SHA^..$HEAD_SHA"
+            fi
           else
             commit_range="$BEFORE..$HEAD_SHA"
           fi
