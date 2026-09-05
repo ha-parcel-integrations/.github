@@ -20,7 +20,13 @@ shared parts.
 
 ## Commits
 
-- **Single-line commit messages.** The description is one line — no body.
+- **A one-line subject, optionally followed by a short body.** The subject
+  stands on its own and says what changed. Add a body — blank line, then at
+  most a handful of lines — whenever *why* isn't obvious from the subject:
+  the behaviour that was wrong, the constraint that forced the approach, what
+  you ruled out. Keep it to what a maintainer reading `git log` in a year
+  needs; a commit is not a design document, and restating the diff in prose
+  adds nothing.
 - **Use Conventional Commit subjects.** Every human- or agent-created commit
   starts with one of `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `ci:`,
   `chore:`, `build:`, `perf:`, `style:` or `revert:` (an optional scope and
@@ -42,14 +48,16 @@ shared parts.
   | `feat: expose additional parcel details` | `feat: show the delivery window and pickup point on each parcel` |
   | `fix: standardize translation terminology` | `fix: use the same wording for pickup points in every language` |
 
-  Other types are never published, so they only need to be clear to a
-  maintainer. If a change is genuinely hard to state in one user-facing line,
-  that is a signal it is two commits, or a `refactor:`.
+  Only the subject is published, so the body is free to carry the maintainer
+  detail that would clutter a changelog. If the *subject* is genuinely hard to
+  state in one user-facing line, that is a signal it is two commits, or a
+  `refactor:` — reaching for the body to make one commit describe two changes
+  is not the fix.
 - The generated release commit is the sole exception and is exactly
   `Bump version to X.Y.Z` (or `X.Y.ZbN`).
 - Reference an issue in the subject where relevant (e.g. `… (#12)`).
-- A `Co-Authored-By: Claude …` trailer is allowed, on its own line after a blank
-  line. No other trailers.
+- A `Co-Authored-By: Claude …` trailer is allowed, on its own line at the end
+  after a blank line. No other trailers.
 
 ## Versioning & releases
 
