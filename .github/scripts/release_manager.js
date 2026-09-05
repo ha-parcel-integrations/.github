@@ -42,8 +42,9 @@ async function latestStableRelease(github, context) {
     per_page: 100,
   });
   const release = releases.find((item) => !item.prerelease && STABLE_VERSION.test(item.tag_name));
-  if (!release) throw new Error("No stable GitHub release was found to use as the release base.");
-  return release.tag_name;
+  // A carrier that has never released yet is normal: the first release is a
+  // maintainer decision, not something to derive from commits.
+  return release ? release.tag_name : null;
 }
 
 async function changesSinceRelease(github, context, tag, head) {
@@ -99,6 +100,12 @@ module.exports = async ({ github, context, core }) => {
   }
 
   const tag = await latestStableRelease(github, context);
+  if (!tag) {
+    core.notice("No stable release yet; the first one is published by hand.");
+    core.setOutput("has_release", "false");
+    return;
+  }
+
   const changes = await changesSinceRelease(github, context, tag, head);
   if (!changes.length) {
     core.notice("No feat: or fix: commits since the last stable release; no release PR is needed.");
