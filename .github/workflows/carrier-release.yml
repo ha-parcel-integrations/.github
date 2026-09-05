@@ -1,0 +1,109 @@
+name: Carrier release
+
+# Publishing runs before preparing on purpose: the tag and GitHub Release for a
+# merged bump commit must exist before the release manager recalculates the next
+# version, otherwise it would propose the version that is being published.
+
+on:
+  workflow_call:
+    inputs:
+      domain:
+        description: Integration domain, e.g. gls or dhl_nl.
+        required: true
+        type: string
+      head-sha:
+        description: The validated commit on main to release from.
+        required: true
+        type: string
+      dry-run:
+        description: Calculate the next release without creating or updating a PR.
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      release-bot-token:
+        description: Lets the generated release PR trigger normal PR checks.
+        required: false
+
+jobs:
+  publish:
+    name: Publish validated release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout suite scripts
+        uses: actions/checkout@v7
+        with:
+          repository: ha-parcel-integrations/.github
+
+      - name: Publish
+        uses: actions/github-script@v9
+        env:
+          HEAD_SHA: ${{ inputs.head-sha }}
+          MANIFEST_PATH: custom_components/${{ inputs.domain }}/manifest.json
+        with:
+          script: |
+            const publish = require("./.github/scripts/publish_release.js");
+            await publish({ github, context, core });
+
+  prepare:
+    name: Prepare release PR
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+      pull-requests: write
+    steps:
+      - name: Checkout validated main
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.head-sha }}
+          fetch-depth: 0
+
+      - name: Checkout suite scripts
+        uses: actions/checkout@v7
+        with:
+          repository: ha-parcel-integrations/.github
+          path: .suite
+
+      - name: Calculate release PR
+        id: release
+        uses: actions/github-script@v9
+        env:
+          HEAD_SHA: ${{ inputs.head-sha }}
+          MANIFEST_PATH: custom_components/${{ inputs.domain }}/manifest.json
+        with:
+          script: |
+            const prepare = require("./.suite/.github/scripts/release_manager.js");
+            await prepare({ github, context, core });
+
+      - name: Require release bot token
+        if: steps.release.outputs.has_release == 'true' && inputs.dry-run == false
+        env:
+          RELEASE_BOT_TOKEN: ${{ secrets.release-bot-token }}
+        run: |
+          test -n "$RELEASE_BOT_TOKEN" || {
+            echo "release-bot-token is required to let the release PR trigger normal PR checks." >&2
+            exit 1
+          }
+
+      - name: Discard suite scripts before committing
+        if: steps.release.outputs.has_release == 'true' && inputs.dry-run == false
+        run: rm -rf .suite
+
+      - name: Create or update release PR
+        if: steps.release.outputs.has_release == 'true' && inputs.dry-run == false
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.release-bot-token }}
+          base: main
+          branch: automation/release
+          delete-branch: true
+          commit-message: Bump version to ${{ steps.release.outputs.version }}
+          title: Bump version to ${{ steps.release.outputs.version }}
+          body: ${{ steps.release.outputs.notes }}
+          add-paths: custom_components/${{ inputs.domain }}/manifest.json
+          draft: false

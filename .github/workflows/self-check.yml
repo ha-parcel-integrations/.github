@@ -1,0 +1,46 @@
+name: Self check
+
+# Every carrier calls this repository at @main, so a broken script here breaks
+# the whole fleet at once. Lint and syntax-check before that can happen.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scripts:
+    name: Lint suite scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Ruff
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: check .github/scripts
+
+      - name: Check JavaScript syntax
+        run: |
+          for script in .github/scripts/*.js; do
+            node --check "$script"
+          done
+
+      - name: Check workflow syntax
+        run: |
+          python - <<'PY'
+          import pathlib, sys, yaml
+          for path in sorted(pathlib.Path(".github/workflows").glob("*.yml")):
+              yaml.safe_load(path.read_text())
+              print(f"ok {path}")
+          PY
