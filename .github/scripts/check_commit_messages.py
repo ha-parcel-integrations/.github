@@ -10,7 +10,7 @@ import sys
 CONVENTIONAL = re.compile(
     r"^(?:feat|fix|refactor|docs|test|ci|chore|build|perf|style|revert)(?:\([^)]+\))?!?: .+"
 )
-RELEASE_BUMP = re.compile(r"^Bump version to \d+\.\d+\.\d+(?:b\d+)?$")
+RELEASE_BUMP = re.compile(r"^Bump version to \d+\.\d+\.\d+(?:b\d+)?(?: \(#\d+\))?$")
 TRAILER = re.compile(r"^Co-Authored-By: .+$", re.IGNORECASE)
 
 # Merged Dependabot commits keep Dependabot as author but carry GitHub's own

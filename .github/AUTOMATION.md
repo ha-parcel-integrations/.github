@@ -30,8 +30,10 @@ credits or rewrite a summary before merging — that is the intended place for
 the judgement a rule cannot make. Note that a later `feat:`/`fix:` push
 regenerates the body, so edit it shortly before merging.
 
-Merge the release PR with squash or a merge commit. A rebase merge breaks the
-link between the commit and its PR, and publishing then does nothing.
+Merge the release PR with **squash**. A merge commit puts "Merge pull request
+#N" on `main`, which is not the bump subject publishing looks for, and a rebase
+merge breaks the link between the commit and its PR. Either way nothing is
+published.
 
 ## Requirements per carrier repository
 

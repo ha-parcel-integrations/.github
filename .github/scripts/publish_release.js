@@ -1,4 +1,6 @@
-const VERSION_IN_SUBJECT = /^Bump version to (\d+\.\d+\.\d+)$/;
+// GitHub appends " (#N)" to a squash subject depending on the repository's
+// merge settings, so accept it either way.
+const VERSION_IN_SUBJECT = /^Bump version to (\d+\.\d+\.\d+)(?: \(#\d+\))?$/;
 const RELEASE_BRANCH = "automation/release";
 
 module.exports = async ({ github, context, core }) => {

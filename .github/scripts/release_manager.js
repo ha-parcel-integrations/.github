@@ -2,7 +2,7 @@ const fs = require("fs");
 
 const STABLE_VERSION = /^(\d+)\.(\d+)\.(\d+)$/;
 const RELEASE_SUBJECT = /^(feat|fix)(!)?(?:\([^)]+\))?: (.+)$/;
-const RELEASE_BUMP_SUBJECT = /^Bump version to \d+\.\d+\.\d+$/;
+const RELEASE_BUMP_SUBJECT = /^Bump version to \d+\.\d+\.\d+(?: \(#\d+\))?$/;
 
 function parseStable(version) {
   const match = STABLE_VERSION.exec(version);
