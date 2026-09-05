@@ -17,6 +17,20 @@ function bumpedVersion(version, changes) {
   return `${major}.${minor}.${patch + 1}`;
 }
 
+const TRAILER = /^(?:Co-Authored-By|Signed-off-by|Reviewed-by|Refs):\s/i;
+// A squash merge composes the body from the squashed subjects, which are
+// already the bullets above.
+const SQUASHED_SUBJECT = /^\* /;
+
+function commitDetails(bodyLines) {
+  const details = bodyLines
+    .map((line) => line.trimEnd())
+    .filter((line) => !TRAILER.test(line) && !SQUASHED_SUBJECT.test(line));
+  while (details.length && !details[0]) details.shift();
+  while (details.length && !details[details.length - 1]) details.pop();
+  return details;
+}
+
 function releaseNotes(changes, helpWanted, repo) {
   const sections = [
     ["New features", changes.filter((change) => change.type === "feat")],
@@ -25,7 +39,13 @@ function releaseNotes(changes, helpWanted, repo) {
   const lines = [];
   for (const [heading, entries] of sections) {
     if (!entries.length) continue;
-    lines.push(`## ${heading}`, ...entries.map((entry) => `- ${entry.description}`), "");
+    lines.push(`## ${heading}`);
+    for (const entry of entries) {
+      lines.push(`- ${entry.description}`);
+      // Indented so the paragraphs stay inside the bullet they explain.
+      lines.push(...entry.details.map((line) => (line ? `  ${line}` : "")));
+    }
+    lines.push("");
   }
   if (helpWanted) {
     const issueUrl = `https://github.com/${repo}/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22`;
@@ -58,10 +78,15 @@ async function changesSinceRelease(github, context, tag, head) {
     throw new Error("More than 250 commits since the last release; split the release before continuing.");
   }
   return data.commits.flatMap((commit) => {
-    const subject = commit.commit.message.split("\n", 1)[0];
+    const [subject, ...rest] = commit.commit.message.split("\n");
     const match = RELEASE_SUBJECT.exec(subject);
     if (!match) return [];
-    return [{ type: match[1], breaking: Boolean(match[2]), description: match[3] }];
+    return [{
+      type: match[1],
+      breaking: Boolean(match[2]),
+      description: match[3],
+      details: commitDetails(rest),
+    }];
   });
 }
 

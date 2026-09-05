@@ -24,9 +24,9 @@ shared parts.
   stands on its own and says what changed. Add a body — blank line, then at
   most a handful of lines — whenever *why* isn't obvious from the subject:
   the behaviour that was wrong, the constraint that forced the approach, what
-  you ruled out. Keep it to what a maintainer reading `git log` in a year
-  needs; a commit is not a design document, and restating the diff in prose
-  adds nothing.
+  you ruled out. A commit is not a design document, and restating the diff in
+  prose adds nothing. Who the body is written for depends on the type: on a
+  `feat:`/`fix:` it is published, everywhere else it is maintainer-only.
 - **Use Conventional Commit subjects.** Every human- or agent-created commit
   starts with one of `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `ci:`,
   `chore:`, `build:`, `perf:`, `style:` or `revert:` (an optional scope and
@@ -34,9 +34,10 @@ shared parts.
   `fix:` only for a user-facing bug fix: release automation derives the next
   version and draft notes from precisely those two types. Use `chore:` or
   `refactor:` for internal maintenance so it does not propose a release.
-- **A `feat:`/`fix:` subject is the release note.** Release automation copies it
-  verbatim into `New features` or `Bug fixes`, so write it for the person
-  updating the integration, not for the diff. Say what changed *for them* and
+- **A `feat:`/`fix:` commit message is the release note.** Release automation
+  copies the subject verbatim into `New features` or `Bug fixes` and indents
+  the body underneath it as part of the same bullet, so write **both** for the
+  person updating the integration, not for the diff. Say what changed *for them* and
   name the thing they see — the sensor, the setting, the notification — not the
   module, function or field that moved. Avoid the vague verbs that read fine in
   a diff and say nothing in a changelog: *improve*, *standardize*, *expose*,
@@ -48,11 +49,17 @@ shared parts.
   | `feat: expose additional parcel details` | `feat: show the delivery window and pickup point on each parcel` |
   | `fix: standardize translation terminology` | `fix: use the same wording for pickup points in every language` |
 
-  Only the subject is published, so the body is free to carry the maintainer
-  detail that would clutter a changelog. If the *subject* is genuinely hard to
-  state in one user-facing line, that is a signal it is two commits, or a
-  `refactor:` — reaching for the body to make one commit describe two changes
-  is not the fix.
+  Give a `feat:`/`fix:` a body whenever one line leaves the reader guessing —
+  what they will now see, what they had to do before, what still won't work.
+  Some changes need only their subject: `fix: relabel the country field from
+  "country dataset" to "country"` is complete as it stands, and padding it out
+  helps nobody. The test is whether a user can act on the bullet, not whether
+  it reaches a length. Keep it plain prose — no diff detail, no module names.
+
+  Other types are never published, so their body only needs to be clear to a
+  maintainer. If the *subject* is genuinely hard to state in one user-facing
+  line, that is a signal it is two commits, or a `refactor:` — reaching for
+  the body to make one commit describe two changes is not the fix.
 - The generated release commit is the sole exception and is exactly
   `Bump version to X.Y.Z` (or `X.Y.ZbN`).
 - Reference an issue in the subject where relevant (e.g. `… (#12)`).
@@ -83,8 +90,10 @@ shared parts.
   had no room for. A later `feat:`/`fix:` push regenerates the body, so edit it
   shortly before merging.
 - **Release notes are user-facing only.** Use the shared `##` house style
-  (`New features`, `Bug fixes`, `Other improvements`, `Credits`), one bullet per
-  line (no hard-wrapping inside a bullet), and never cross-reference other repos.
+  (`New features`, `Bug fixes`, `Other improvements`, `Credits`) and never
+  cross-reference other repos. A bullet is one line, optionally followed by
+  indented paragraphs that expand it — that indentation is what keeps them
+  inside the bullet, so don't hard-wrap a bullet's own first line.
   A section with nothing to say is omitted rather than filled with a placeholder
   sentence; `Credits` in particular is worth adding by hand whenever someone
   reported or tested the change.
