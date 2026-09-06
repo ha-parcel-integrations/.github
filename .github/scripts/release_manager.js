@@ -106,9 +106,11 @@ async function openHelpWanted(github, context) {
 function writeManifestVersion(version) {
   const path = process.env.MANIFEST_PATH;
   const original = fs.readFileSync(path, "utf8");
-  const updated = original.replace(/"version":\s*"[^"]+"/, `"version": "${version}"`);
-  if (updated === original) throw new Error(`Could not find version in ${path}`);
-  fs.writeFileSync(path, updated);
+  const field = /"version":\s*"[^"]+"/;
+  if (!field.test(original)) throw new Error(`Could not find version in ${path}`);
+  // A manifest already carrying the proposed version (a hand-bumped release, a
+  // re-run) is not an error; the PR simply has nothing left to change here.
+  fs.writeFileSync(path, original.replace(field, `"version": "${version}"`));
 }
 
 module.exports = async ({ github, context, core }) => {
