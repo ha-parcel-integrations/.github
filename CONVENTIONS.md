@@ -84,6 +84,13 @@ shared parts.
   shared workflows follow the manual sequence: bump the version in
   `manifest.json` → commit `Bump version to X.Y.Z` → tag → push (branch + tag)
   → publish a GitHub release.
+- **Every release carries a HACS archive.** `hacs.json` sets `zip_release`,
+  `filename` (`<domain>.zip`, matching the `domain:` the repo's `Release`
+  workflow passes to the shared one) and `hide_default_branch`, and the shared
+  workflow attaches that archive built from `custom_components/<domain>/`. HACS
+  reads `hacs.json` at the ref it downloads, so releases from before a carrier
+  switched keep installing the old way — but a carrier that sets `zip_release`
+  without the shared workflow ships a version nobody can install.
 - **The release PR body is the release, verbatim — edit it before merging.**
   That is where the judgement a rule cannot make belongs: naming who reported an
   issue, merging two commits into one clearer bullet, adding context a subject
