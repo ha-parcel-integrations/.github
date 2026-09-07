@@ -41,36 +41,61 @@ module.exports = async ({ github, context, core }) => {
     throw new Error(`Manifest is at ${manifest.version} but the bump commit claims ${version}.`);
   }
 
+  // The release, not the tag, is what decides whether there is work left: a run
+  // that died between the two would otherwise leave the draft unpublished
+  // forever. Drafts carry no tag, so they only show up in the full listing.
+  const releases = await github.paginate(github.rest.repos.listReleases, {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    per_page: 100,
+  });
+  let release = releases.find((candidate) => candidate.tag_name === version);
+  if (release && !release.draft) {
+    core.notice(`Release ${version} already exists; nothing to publish.`);
+    return;
+  }
+
   try {
     await github.rest.git.getRef({ owner: context.repo.owner, repo: context.repo.repo, ref: `tags/${version}` });
-    core.notice(`Tag ${version} already exists; nothing to publish.`);
-    return;
   } catch (error) {
     if (error.status !== 404) throw error;
+    await github.rest.git.createRef({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      ref: `refs/tags/${version}`,
+      sha,
+    });
   }
-  await github.rest.git.createRef({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    ref: `refs/tags/${version}`,
-    sha,
-  });
+
   // Released as a draft first: HACS downloads the archive by asset name, so a
   // release must never be visible without one attached.
-  const { data: release } = await github.rest.repos.createRelease({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    tag_name: version,
-    target_commitish: sha,
-    name: version,
-    body: (releasePr.body || "").trim(),
-    draft: true,
-  });
+  if (!release) {
+    ({ data: release } = await github.rest.repos.createRelease({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      tag_name: version,
+      target_commitish: sha,
+      name: version,
+      body: (releasePr.body || "").trim(),
+      draft: true,
+    }));
+  }
+
+  const zipName = require("node:path").basename(process.env.ZIP_PATH);
+  const stale = (release.assets || []).find((asset) => asset.name === zipName);
+  if (stale) {
+    await github.rest.repos.deleteReleaseAsset({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      asset_id: stale.id,
+    });
+  }
   const zip = require("node:fs").readFileSync(process.env.ZIP_PATH);
   await github.rest.repos.uploadReleaseAsset({
     owner: context.repo.owner,
     repo: context.repo.repo,
     release_id: release.id,
-    name: require("node:path").basename(process.env.ZIP_PATH),
+    name: zipName,
     data: zip,
     headers: { "content-type": "application/zip", "content-length": zip.length },
   });
