@@ -54,6 +54,8 @@ module.exports = async ({ github, context, core }) => {
     ref: `refs/tags/${version}`,
     sha,
   });
+  // Released as a draft first: HACS downloads the archive by asset name, so a
+  // release must never be visible without one attached.
   const { data: release } = await github.rest.repos.createRelease({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -61,6 +63,22 @@ module.exports = async ({ github, context, core }) => {
     target_commitish: sha,
     name: version,
     body: (releasePr.body || "").trim(),
+    draft: true,
   });
-  core.notice(`Published ${version}: ${release.html_url}`);
+  const zip = require("node:fs").readFileSync(process.env.ZIP_PATH);
+  await github.rest.repos.uploadReleaseAsset({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id: release.id,
+    name: require("node:path").basename(process.env.ZIP_PATH),
+    data: zip,
+    headers: { "content-type": "application/zip", "content-length": zip.length },
+  });
+  const { data: published } = await github.rest.repos.updateRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id: release.id,
+    draft: false,
+  });
+  core.notice(`Published ${version}: ${published.html_url}`);
 };

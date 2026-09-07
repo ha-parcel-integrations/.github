@@ -38,11 +38,30 @@ jobs:
         with:
           repository: ha-parcel-integrations/.github
 
+      # Checked out second: a checkout into the workspace root wipes whatever
+      # else is already there.
+      - name: Checkout the release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.head-sha }}
+          path: carrier
+
+      # HACS unpacks the archive straight into custom_components/<domain>, so
+      # the archive holds the component's files without a directory above them.
+      - name: Build the HACS archive
+        env:
+          DOMAIN: ${{ inputs.domain }}
+        run: |
+          git -C carrier archive --format=zip \
+            --output="$GITHUB_WORKSPACE/$DOMAIN.zip" \
+            HEAD:"custom_components/$DOMAIN"
+
       - name: Publish
         uses: actions/github-script@v9
         env:
           HEAD_SHA: ${{ inputs.head-sha }}
           MANIFEST_PATH: custom_components/${{ inputs.domain }}/manifest.json
+          ZIP_PATH: ${{ inputs.domain }}.zip
         with:
           script: |
             const publish = require("./.github/scripts/publish_release.js");
