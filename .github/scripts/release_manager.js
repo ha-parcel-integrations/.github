@@ -71,7 +71,7 @@ function releaseNotes(changes, helpWanted, repo) {
   }
   if (helpWanted) {
     const issueUrl = `https://github.com/${repo}/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22`;
-    lines.push(`🙋 [${helpWanted} open question${helpWanted === 1 ? "" : "s"} need a real parcel to answer](${issueUrl})`, "");
+    lines.push(`🙋 [${helpWanted} open question${helpWanted === 1 ? "" : "s"} ${helpWanted === 1 ? "needs" : "need"} a real parcel to answer](${issueUrl})`, "");
   }
   lines.push("---", "", "📦 [See every supported carrier](https://ha-parcel-integrations.github.io/carriers/) — new ones land regularly.", "💛 [Support the project](https://ha-parcel-integrations.github.io/sponsor/)");
   return lines.join("\n");
