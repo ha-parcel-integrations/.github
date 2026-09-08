@@ -75,6 +75,7 @@ jobs:
       contents: write
       issues: read
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout validated main
         uses: actions/checkout@v7

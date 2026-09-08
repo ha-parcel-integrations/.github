@@ -1,4 +1,6 @@
 const fs = require("fs");
+const path = require("path");
+const { aiReleaseNotes } = require("./ai_release_notes.js");
 
 const STABLE_VERSION = /^(\d+)\.(\d+)\.(\d+)$/;
 const RELEASE_SUBJECT = /^(feat|fix)(!)?(?:\([^)]+\))?: (.+)$/;
@@ -23,12 +25,28 @@ const TRAILER = /^(?:Co-Authored-By|Signed-off-by|Reviewed-by|Refs):\s/i;
 const SQUASHED_SUBJECT = /^\* /;
 
 function commitDetails(bodyLines) {
-  const details = bodyLines
+  const lines = bodyLines
     .map((line) => line.trimEnd())
     .filter((line) => !TRAILER.test(line) && !SQUASHED_SUBJECT.test(line));
-  while (details.length && !details[0]) details.shift();
-  while (details.length && !details[details.length - 1]) details.pop();
-  return details;
+  while (lines.length && !lines[0]) lines.shift();
+  while (lines.length && !lines[lines.length - 1]) lines.pop();
+
+  // Git commit bodies are hand-wrapped at ~72 columns, but GitHub renders
+  // every one of those soft line breaks as a hard <br>. Re-flow each
+  // wrapped paragraph into a single line so it reads as prose; a blank
+  // line in the commit body still starts a new paragraph.
+  const paragraphs = [];
+  let current = [];
+  for (const line of lines) {
+    if (line) {
+      current.push(line);
+    } else if (current.length) {
+      paragraphs.push(current.join(" "));
+      current = [];
+    }
+  }
+  if (current.length) paragraphs.push(current.join(" "));
+  return paragraphs;
 }
 
 function releaseNotes(changes, helpWanted, repo) {
@@ -42,8 +60,12 @@ function releaseNotes(changes, helpWanted, repo) {
     lines.push(`## ${heading}`);
     for (const entry of entries) {
       lines.push(`- ${entry.description}`);
-      // Indented so the paragraphs stay inside the bullet they explain.
-      lines.push(...entry.details.map((line) => (line ? `  ${line}` : "")));
+      // Indented so the paragraph(s) stay inside the bullet they explain;
+      // a blank line only appears between multiple real paragraphs.
+      entry.details.forEach((paragraph, index) => {
+        if (index > 0) lines.push("");
+        lines.push(`  ${paragraph}`);
+      });
     }
     lines.push("");
   }
@@ -143,8 +165,21 @@ module.exports = async ({ github, context, core }) => {
   const version = bumpedVersion(tag, changes);
   const helpWanted = await openHelpWanted(github, context);
   writeManifestVersion(version);
+
+  const repo = `${context.repo.owner}/${context.repo.repo}`;
+  let notes;
+  try {
+    // Suite scripts are checked out two levels above this file (see
+    // carrier-release.yml); CONVENTIONS.md lives at that root.
+    const suitePath = path.join(__dirname, "..", "..");
+    notes = await aiReleaseNotes(changes, helpWanted, repo, { github, context, core, suitePath });
+  } catch (error) {
+    core.warning(`AI release notes failed, falling back to the mechanical notes: ${error.message}`);
+    notes = releaseNotes(changes, helpWanted, repo);
+  }
+
   core.setOutput("has_release", "true");
   core.setOutput("version", version);
-  core.setOutput("notes", releaseNotes(changes, helpWanted, `${context.repo.owner}/${context.repo.repo}`));
+  core.setOutput("notes", notes);
   core.notice(`Proposing ${version} (${tag} + ${changes.length} change(s)).`);
 };
