@@ -182,4 +182,5 @@ module.exports = async ({ github, context, core }) => {
   core.setOutput("version", version);
   core.setOutput("notes", notes);
   core.notice(`Proposing ${version} (${tag} + ${changes.length} change(s)).`);
+  core.info(`Release notes:\n${notes}`);
 };
