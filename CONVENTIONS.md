@@ -145,6 +145,12 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
 - Say "package" as well as "parcel" in titles and descriptions. The code and the
   contract use *parcel* throughout, but "package tracking" is the more common
   search term in English.
+- **README badge row is Release, Downloads, HACS, License, in that order.**
+  The Downloads badge
+  (`https://img.shields.io/github/downloads/ha-parcel-integrations/<repo>/total.svg`,
+  linking to that repo's `/releases`) belongs on every carrier repo and the
+  aggregator; `ha-carrier-template/scaffold/README.md` carries it too so a
+  newly bootstrapped carrier gets it for free.
 
 ## Translations (integrations)
 
