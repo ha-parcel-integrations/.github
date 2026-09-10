@@ -9,7 +9,7 @@ any of the internal reasoning or code that produced it.
 
 This doc covers how a `feat:`/`fix:` commit becomes a published release note,
 and the house style for the generated release PR body. Linked from
-[`CONVENTIONS.md`](../CONVENTIONS.md) — read this whenever you're writing a
+[`CONVENTIONS.md`](CONVENTIONS.md) — read this whenever you're writing a
 `feat:`/`fix:` commit, editing a release PR before merging, or generating
 release notes for one (see `.github/scripts/ai_release_notes.js`).
 

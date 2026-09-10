@@ -60,8 +60,8 @@ shared parts.
   `automation/release` PR that bumps `manifest.json` and carries the proposed
   notes. Merge it with **squash** when the version and notes are right; the tag
   and GitHub release follow automatically. A rebase or merge commit publishes
-  nothing. See `.github/AUTOMATION.md` for the details. Carriers not yet on the
-  shared workflows follow the manual sequence: bump the version in
+  nothing. See [`AUTOMATION.md`](AUTOMATION.md) for the details. Carriers not
+  yet on the shared workflows follow the manual sequence: bump the version in
   `manifest.json` → commit `Bump version to X.Y.Z` → tag → push (branch + tag)
   → publish a GitHub release.
 - **Every release carries a HACS archive.** `hacs.json` sets `zip_release`,

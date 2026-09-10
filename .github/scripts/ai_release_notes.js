@@ -149,7 +149,7 @@ function render(sections, helpWanted, credits, repo) {
 // trustworthy so the caller can fall back to the mechanical notes instead of
 // publishing something malformed or hallucinated.
 async function aiReleaseNotes(changes, helpWanted, repo, { github, context, core, suitePath }) {
-  const houseStyle = fs.readFileSync(path.join(suitePath, ".github", "RELEASE_NOTES.md"), "utf8");
+  const houseStyle = fs.readFileSync(path.join(suitePath, "RELEASE_NOTES.md"), "utf8");
   const [token, credits] = await Promise.all([accessToken(core), issueAuthors(changes, github, context)]);
   const result = await callClaude(token, changes, houseStyle);
 
