@@ -115,7 +115,30 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
 
 - Tests use `pytest`. Run with coverage:
   `python -m pytest tests/ --cov=custom_components.<domain>`.
-- Integrations keep coverage **above 95%**.
+- Integrations keep coverage **above 95%**. That bar is **per source module**,
+  not just per repo — a repo-wide 96% can hide a freshly added module at 75%,
+  so check the new file's own row in `--cov-report=term-missing`.
+- **`tests/` mirrors the layout of the package it tests.** A concern that lives
+  in one source module gets one `tests/test_<module>.py`. Where the integration
+  splits a concern into a sub-package — `custom_components/<domain>/countries/`
+  being the suite's only one today — the tests split the same way, one
+  directory per sub-package member with its own `__init__.py`:
+
+  ```
+  custom_components/gls/countries/     tests/countries/
+  ├── ca/__init__.py                   ├── ca/test_ca.py
+  ├── de/__init__.py                   ├── de/test_de.py
+  ├── de/session.py                    ├── de/test_session.py
+  └── nl/__init__.py                   └── nl/test_nl.py
+  ```
+
+  One test module per source module, named after it; the package's own
+  `__init__.py` is tested by `test_<code>.py`. A flat
+  `tests/countries/test_<code>.py` beside a nested source tree is drift — it
+  stops being obvious which country a file belongs to as soon as a country
+  grows a second module. Tests of a *concern* that merely exercise one country
+  (`tests/test_coordinator_de.py`) stay at the top level: they belong to the
+  concern, not to the country package.
 - A code change updates the docs (`README` / `CLAUDE.md`) where behaviour changes.
 - **Fixtures built from a real captured payload must have every identifier
   scrubbed before they're committed** — tracking/parcel number, postal code,
