@@ -137,8 +137,12 @@ jobs:
               | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
             if [ -n "$last_tag" ]; then
               commit_range="$last_tag..$HEAD_SHA"
-            else
+            elif git cat-file -e "$HEAD_SHA^{commit}^" 2>/dev/null; then
               commit_range="$HEAD_SHA^..$HEAD_SHA"
+            else
+              # No tag and no parent: this is a repo's very first commit.
+              # A bare SHA logs it (and nothing else), where "^.." would fail.
+              commit_range="$HEAD_SHA"
             fi
           else
             commit_range="$BEFORE..$HEAD_SHA"
