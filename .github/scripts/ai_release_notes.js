@@ -34,21 +34,31 @@ async function accessToken(core) {
   return data.access_token;
 }
 
-// Only the reporter earns a credit; who tested a fix lives in PR/issue
-// comments and isn't reliably attributable, so that stays a human's call.
+// Whoever reported or tested on a referenced issue earns a credit: its author
+// and everyone who commented on it. Maintainers and bots never do — the
+// tester-request issues are opened by a maintainer, so the real reporters are
+// the commenters. Who tested a fix elsewhere (PRs, chat) isn't attributable,
+// so that stays a human's call.
+const MAINTAINER_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+
+function earnsCredit(user, association) {
+  return Boolean(user?.login) && user.type !== "Bot" && !MAINTAINER_ASSOCIATIONS.has(association);
+}
+
 async function issueAuthors(changes, github, context) {
   const numbers = [...new Set(changes.map((change) => ISSUE_REF.exec(change.description)?.[1]).filter(Boolean))];
   const logins = [];
+  const add = (user, association) => {
+    if (earnsCredit(user, association) && !logins.includes(user.login)) logins.push(user.login);
+  };
   for (const number of numbers) {
+    const params = { owner: context.repo.owner, repo: context.repo.repo, issue_number: Number(number) };
     try {
-      const { data: issue } = await github.rest.issues.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: Number(number),
-      });
-      if (!issue.pull_request && issue.user?.login && !logins.includes(issue.user.login)) {
-        logins.push(issue.user.login);
-      }
+      const { data: issue } = await github.rest.issues.get(params);
+      if (issue.pull_request) continue;
+      add(issue.user, issue.author_association);
+      const comments = await github.paginate(github.rest.issues.listComments, { ...params, per_page: 100 });
+      for (const comment of comments) add(comment.user, comment.author_association);
     } catch {
       // Deleted or inaccessible issue: no credit to give.
     }
@@ -139,7 +149,7 @@ function render(sections, helpWanted, credits, repo) {
     lines.push(`🙋 [${helpWanted} open question${helpWanted === 1 ? "" : "s"} need a real parcel to answer](${issueUrl})`, "");
   }
   if (credits.length) {
-    lines.push("## Credits", `- Thanks to ${credits.map((login) => `@${login}`).join(", ")} for reporting.`, "");
+    lines.push("## Credits", `- Thanks to ${credits.map((login) => `@${login}`).join(", ")} for testing and reporting.`, "");
   }
   lines.push("---", "", "📦 [See every supported carrier](https://ha-parcel-integrations.github.io/carriers/) — new ones land regularly.", "💛 [Support the project](https://ha-parcel-integrations.github.io/sponsor/)");
   return lines.join("\n");
