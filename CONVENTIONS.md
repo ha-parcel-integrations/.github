@@ -21,8 +21,8 @@ shared parts.
 ## Commits
 
 - **A one-line subject, optionally followed by a short body.** The subject
-  stands on its own and says what changed. Add a body — blank line, then at
-  most a handful of lines — whenever *why* isn't obvious from the subject:
+  stands on its own and says what changed. Add a body — blank line, then as
+  many lines as the reason needs — whenever *why* isn't obvious from the subject:
   the behaviour that was wrong, the constraint that forced the approach, what
   you ruled out. A commit is not a design document, and restating the diff in
   prose adds nothing. Who the body is written for depends on the type: on a
