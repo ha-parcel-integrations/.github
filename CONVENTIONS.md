@@ -235,7 +235,26 @@ trump older recollection.
 
 Branding is handled by each repo's **local `brand/` folder** (HACS reads
 `icon.png` from it). The official `home-assistant/brands` repo is Core-only and
-does not apply to these HACS integrations.
+does not apply to these HACS integrations — but its
+[image specification](https://github.com/home-assistant/brands#image-specification)
+still does, because the same file is what HACS shows and what the docs site
+republishes as the carrier tile. CI enforces it
+(`.github/scripts/check_brand_icon.py`, in the `policy` job):
+
+- exactly **256x256** PNG (`icon@2x.png`, if present, 512x512)
+- **rounded corners must be transparent.** Never flatten a rounded app icon
+  onto an opaque backdrop — it shows as coloured wedges in the corners. Round
+  all four corners or none.
+- **no baked-in border or letterbox** ringing the artwork
+- **no upscaling** from a source too small to carry 256px
+
+Padding is deliberately *not* checked. The suite's tile style is a logo
+centred on a full-bleed brand-colour plate, which the spec's "trim" rule would
+condemn almost everywhere; what is checked is artwork lying about its edges.
+
+Prefer the brand's **Play Store listing icon** as the source — it is square,
+512px and official. `tools/icon_audit.py` sweeps every repo plus the docs
+site's alias logos at once.
 
 ## Claude skills
 

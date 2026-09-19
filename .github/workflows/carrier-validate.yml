@@ -115,6 +115,14 @@ jobs:
           DOMAIN: ${{ inputs.domain }}
         run: python .suite/.github/scripts/check_policy.py
 
+      - name: Install Pillow
+        run: pip install pillow
+
+      - name: Check brand icon
+        env:
+          DOMAIN: ${{ inputs.domain }}
+        run: python .suite/.github/scripts/check_brand_icon.py
+
       - name: Check commit messages
         env:
           EVENT_NAME: ${{ github.event_name }}
