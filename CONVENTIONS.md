@@ -86,14 +86,18 @@ shared parts.
   shipped at `1.0.0` before is not itself a reason to hold one back that
   clears this bar — judge each carrier on what's actually still unknown about
   it, not on suite precedent.
-- **`profile/README.md` is generated — never edit it by hand.** It is rendered
-  from `data/carriers.yml` in the
+- **A new carrier gets one entry in `data/carriers.yml`** in the
   [`ha-parcel-integrations.github.io`](https://github.com/ha-parcel-integrations/ha-parcel-integrations.github.io)
-  repo and pushed here by that repo's deploy workflow; a manual edit is
-  overwritten on the next run. A new carrier gets one entry in that YAML file
-  and everything else — the profile table, the docs site, the repo's homepage
-  link — follows. (The release-notes footer that points at the same carriers
+  repo, and the rest follows: the docs site's carriers page and the repo's
+  homepage link. That file is also a hard gate — the deploy fails if the org
+  has a released public carrier repo missing from it, or lists one that no
+  longer exists. (The release-notes footer that points at the same carriers
   page is documented in [`RELEASE_NOTES.md`](RELEASE_NOTES.md).)
+- **`profile/README.md` is generated — never edit it by hand.** That repo's
+  deploy workflow renders it and pushes it here; a manual edit is overwritten
+  on the next run. It carries no carrier list of its own — it is a general
+  introduction that sends visitors to the website — so a new carrier needs
+  nothing here.
 
 ## Pre-1.0 releases (early carriers)
 
