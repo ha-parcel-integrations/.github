@@ -32,3 +32,7 @@ For bugs, find the integration through the **[carrier directory](https://ha-parc
 ## Support this project
 
 These integrations are free and MIT-licensed. If you would like to help keep the project going, **[visit the support page](https://ha-parcel-integrations.github.io/sponsor/)** for sponsorship and other ways to contribute.
+
+## Disclaimer
+
+Independent, community-built projects, not affiliated with or endorsed by any carrier, brand owner, or Home Assistant. Trademarks belong to their respective owners. Read the **[full disclaimer](https://ha-parcel-integrations.github.io/disclaimer/)**.
