@@ -198,6 +198,19 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   file in a repo; only the leaf string values change. Brand/carrier names,
   placeholders (`{…}`) and service/attribute identifiers are never translated.
 
+## Entity icons (integrations)
+
+- Shared summary sensors use the same default icon wherever they are exposed:
+  `incoming_parcels` → `mdi:package-variant-closed`, `delivered_parcels` →
+  `mdi:package-variant`, `awaiting_pickup` → `mdi:store-clock`,
+  `outgoing_parcels` → `mdi:package-up`, and `outgoing_delivered_parcels` →
+  `mdi:package-check`. `next_delivery`, `last_update`, and per-parcel
+  `parcel` sensors are likewise centrally checked in suite policy.
+- The Parcel Aggregator's older short keys (`incoming`, `delivered`,
+  `outgoing`, and `outgoing_delivered`) carry those same icon meanings.
+- `check_policy.py` validates each of these only when the corresponding sensor
+  is configured in `icons.json`; optional summary sensors are not required.
+
 ## Repo hygiene
 
 - One shared `.gitignore` across repos (Python + tooling + editors + `.DS_Store`
