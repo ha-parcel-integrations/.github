@@ -202,7 +202,8 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
 
 - Shared summary sensors use the same default icon wherever they are exposed:
   `incoming_parcels` → `mdi:package-variant-closed`, `delivered_parcels` →
-  `mdi:package-variant`, `awaiting_pickup` → `mdi:store-clock`,
+  `mdi:package-variant`, `en_route_to_pickup_point` → `mdi:truck-delivery`,
+  `awaiting_pickup` → `mdi:store-clock`,
   `outgoing_parcels` → `mdi:package-up`, and `outgoing_delivered_parcels` →
   `mdi:package-check`. `next_delivery`, `last_update`, and per-parcel
   `parcel` sensors are likewise centrally checked in suite policy.
@@ -340,8 +341,21 @@ the core rule.
   don't introduce a second generic term alongside "pickup point".
 - **`awaiting_pickup` sensor.** Any carrier whose parcels can reach
   `ParcelStatus.AT_PICKUP_POINT` from a real raw status/code exposes an
-  `awaiting_pickup` sensor (arrived, ready for collection). Reference
-  implementations: `ha-dhl-nl`, `ha-dpd`, `ha-gls`, `ha-inpost`. A carrier
+  `awaiting_pickup` sensor (arrived, ready for collection). Membership is
+  `status == AT_PICKUP_POINT` alone — no `pickup` gate, so a failed home
+  delivery that gets rerouted to a pickup point still counts. Reference
+  implementations: `ha-dhl-nl`, `ha-dpd`, `ha-gls`, `ha-inpost`. The Parcel
+  Aggregator reads ready parcels only from this sensor, so a carrier that maps
+  a status to `AT_PICKUP_POINT` without one drops out of its total. A carrier
   whose statuses never actually reach `AT_PICKUP_POINT` (no pickup-point
   delivery method) is exempt — say so explicitly in that repo's own
   `CLAUDE.md` so the gap reads as a decision, not an oversight.
+- **`en_route_to_pickup_point` sensor (optional).** A carrier that can tell,
+  before arrival, that a parcel is headed for a pickup point may expose it:
+  `pickup is true` and `status != AT_PICKUP_POINT`, so it never overlaps
+  `awaiting_pickup`. Only add it when `pickup` is reliable ahead of arrival —
+  a carrier that only learns it at arrival would publish a permanently-zero
+  sensor. The Parcel Aggregator merges both sensors from their carrier
+  sources; it never derives either phase from `incoming_parcels`. Both sensors follow the list-sensor shape
+  (integer state, `parcels` attribute) and use the translation key as the
+  unique-ID suffix; `incoming_parcels` stays the complete active list.
