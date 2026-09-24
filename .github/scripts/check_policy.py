@@ -12,6 +12,7 @@ CONVENTIONS = "https://github.com/ha-parcel-integrations/.github/blob/main/CONVE
 # Shared summary sensors use the same meaning across carriers. Keep their
 # default icons uniform wherever a carrier implements the corresponding key.
 SUMMARY_SENSOR_ICONS = {
+    "en_route_to_pickup_point": "mdi:truck-delivery",
     "awaiting_pickup": "mdi:store-clock",
     "delivered_parcels": "mdi:package-variant",
     "incoming_parcels": "mdi:package-variant-closed",
@@ -25,6 +26,7 @@ SUMMARY_SENSOR_ICONS = {
 # The aggregator predates the longer carrier translation keys but represents
 # the same four parcel buckets.
 AGGREGATOR_SENSOR_ICONS = {
+    "en_route_to_pickup_point": "mdi:truck-delivery",
     "awaiting_pickup": "mdi:store-clock",
     "delivered": "mdi:package-variant",
     "incoming": "mdi:package-variant-closed",
@@ -64,6 +66,29 @@ def check_summary_sensor_icons(domain_dir: Path, domain: str) -> int:
             )
             failures += 1
 
+    return failures
+
+
+def check_canonical_pickup_sources(domain_dir: Path) -> int:
+    """Allow the optional sensor, but reject its retired identities."""
+    legacy_names = ("en_route_to_parcel_shop", "en_route_to_service_point")
+    failures = 0
+    strings = json.loads((domain_dir / "strings.json").read_text())
+    sensor_strings = strings.get("entity", {}).get("sensor", {})
+    for name in legacy_names:
+        if name in sensor_strings:
+            fail(f"strings.json must not contain legacy pickup key {name!r}")
+            failures += 1
+    # Old IDs are necessarily retained in the narrowly scoped registry
+    # migration.  A live entity, however, must not publish one as its
+    # translation key.  This static check is intentionally narrow so it keeps
+    # accepting integrations that do not implement the optional sensor.
+    for source in domain_dir.rglob("*.py"):
+        contents = source.read_text()
+        for name in legacy_names:
+            if f'_attr_translation_key = "{name}"' in contents:
+                fail(f"{source.relative_to(domain_dir)} must not publish legacy pickup key {name!r}")
+                failures += 1
     return failures
 
 
@@ -113,6 +138,7 @@ def main() -> int:
         failures += 1
 
     failures += check_summary_sensor_icons(domain_dir, domain)
+    failures += check_canonical_pickup_sources(domain_dir)
 
     if not failures:
         print("Policy checks passed.")
