@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-const ISSUE_REF = /\(#(\d+)\)/;
 const MODEL = "claude-sonnet-5";
 const ANTHROPIC_AUDIENCE = "https://api.anthropic.com";
 
@@ -46,7 +45,7 @@ function earnsCredit(user, association) {
 }
 
 async function issueAuthors(changes, github, context) {
-  const numbers = [...new Set(changes.map((change) => ISSUE_REF.exec(change.description)?.[1]).filter(Boolean))];
+  const numbers = [...new Set(changes.flatMap((change) => change.issues || []))];
   const logins = [];
   const add = (user, association) => {
     if (earnsCredit(user, association) && !logins.includes(user.login)) logins.push(user.login);

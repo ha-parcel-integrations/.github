@@ -20,6 +20,10 @@ function bumpedVersion(version, changes) {
 }
 
 const TRAILER = /^(?:Co-Authored-By|Signed-off-by|Reviewed-by|Refs):\s/i;
+// An issue reference may sit in the body instead of the subject; it still
+// owes the bullet its "(#N)" and the reporter their credit.
+const BODY_ISSUE_REF = /^(?:Refs?|Fix(?:es|ed)?|Close[sd]?|Resolve[sd]?):?\s+(#\d+(?:\s*,\s*#\d+)*)\s*$/i;
+const SUBJECT_ISSUE_REF = /\(#(\d+)\)/g;
 // A squash merge composes the body from the squashed subjects, which are
 // already the bullets above.
 const SQUASHED_SUBJECT = /^\* /;
@@ -27,7 +31,7 @@ const SQUASHED_SUBJECT = /^\* /;
 function commitDetails(bodyLines) {
   const lines = bodyLines
     .map((line) => line.trimEnd())
-    .filter((line) => !TRAILER.test(line) && !SQUASHED_SUBJECT.test(line));
+    .filter((line) => !TRAILER.test(line) && !BODY_ISSUE_REF.test(line) && !SQUASHED_SUBJECT.test(line));
   while (lines.length && !lines[0]) lines.shift();
   while (lines.length && !lines[lines.length - 1]) lines.pop();
 
@@ -103,11 +107,21 @@ async function changesSinceRelease(github, context, tag, head) {
     const [subject, ...rest] = commit.commit.message.split("\n");
     const match = RELEASE_SUBJECT.exec(subject);
     if (!match) return [];
+    const subjectIssues = [...match[3].matchAll(SUBJECT_ISSUE_REF)].map((ref) => ref[1]);
+    const bodyIssues = rest.flatMap((line) => {
+      const ref = BODY_ISSUE_REF.exec(line.trim());
+      return ref ? [...ref[1].matchAll(/#(\d+)/g)].map((number) => number[1]) : [];
+    });
+    const issues = [...new Set([...subjectIssues, ...bodyIssues])];
+    const unlisted = issues.filter((number) => !subjectIssues.includes(number));
     return [{
       type: match[1],
       breaking: Boolean(match[2]),
-      description: match[3],
+      description: unlisted.length
+        ? `${match[3]} (${unlisted.map((number) => `#${number}`).join(", ")})`
+        : match[3],
       details: commitDetails(rest),
+      issues,
     }];
   });
 }
