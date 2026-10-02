@@ -65,6 +65,29 @@ async function issueAuthors(changes, github, context) {
   return logins;
 }
 
+// A bullet is a short first line plus optional prose paragraphs underneath it,
+// the same shape the mechanical notes render. An earlier version asked for "one
+// flowing sentence" per change, which turned any commit with a real body into a
+// single semicolon-chained paragraph — unreadable, and worse than the fallback
+// it was replacing.
+const BULLET_SCHEMA = {
+  type: "object",
+  properties: {
+    summary: {
+      type: "string",
+      description:
+        "The bullet's first line: one short user-facing sentence, no leading dash, no line breaks. Keep it to the one thing that changed — if you need a semicolon to chain separate facts, the rest belongs in details. Preserve any trailing \"(#N)\" verbatim.",
+    },
+    details: {
+      type: "array",
+      items: { type: "string" },
+      description:
+        "Optional prose paragraphs expanding the summary, each a plain paragraph with no line breaks and no list syntax. Use one per distinct point: what they will now see, what they had to do before, what still will not work. Omit entirely when the summary says everything.",
+    },
+  },
+  required: ["summary"],
+};
+
 const NOTES_TOOL = {
   name: "emit_release_notes",
   description: "Emit polished, user-facing release notes bullets for a Home Assistant integration release.",
@@ -73,13 +96,13 @@ const NOTES_TOOL = {
     properties: {
       new_features: {
         type: "array",
-        items: { type: "string" },
-        description: "One bullet per feat: change, as a single flowing sentence (no leading dash, no embedded line breaks).",
+        items: BULLET_SCHEMA,
+        description: "One bullet per feat: change.",
       },
       bug_fixes: {
         type: "array",
-        items: { type: "string" },
-        description: "One bullet per fix: change, same rules as new_features.",
+        items: BULLET_SCHEMA,
+        description: "One bullet per fix: change.",
       },
     },
     required: ["new_features", "bug_fixes"],
@@ -97,8 +120,9 @@ Additional hard rules for this task:
 - Never invent a fact that isn't in the input commits. If a detail isn't there, leave it out rather than guessing.
 - Never mention internal code: field/function/module names, status codes, or enum values (e.g. "K01", "in_transit", "observationCode") unless it is literally text the user sees in the Home Assistant UI (a quoted notification string is fine to keep).
 - Merge multiple commits that describe the same user-visible change into one bullet rather than listing them separately.
-- Each bullet is one flowing sentence, no embedded line breaks, no markdown list syntax (the caller adds the "- ").
-- Preserve any trailing "(#N)" issue reference verbatim.
+- A commit that fixes two unrelated things is still one bullet, because it is one commit: say so in the summary at the level both share, and give each one its own paragraph in details. Never chain them into a single sentence with semicolons.
+- Keep the commit's own structure. A body written as several paragraphs or points becomes several details paragraphs, in the same order — do not flatten it, and do not pad a one-line commit with details it did not have.
+- Preserve any trailing "(#N)" issue reference verbatim, on the summary line.
 - A type with nothing to say gets an empty array, not an invented bullet.`;
 }
 
@@ -131,8 +155,20 @@ async function callClaude(token, changes, houseStyle) {
   return toolUse.input;
 }
 
-function isStringArray(value) {
-  return Array.isArray(value) && value.every((item) => typeof item === "string" && item.trim());
+function isProse(value) {
+  return typeof value === "string" && Boolean(value.trim());
+}
+
+function isBulletArray(value) {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (bullet) =>
+        bullet &&
+        isProse(bullet.summary) &&
+        (bullet.details === undefined || (Array.isArray(bullet.details) && bullet.details.every(isProse))),
+    )
+  );
 }
 
 function render(sections, helpWanted, credits, repo) {
@@ -140,7 +176,16 @@ function render(sections, helpWanted, credits, repo) {
   for (const [heading, bullets] of sections) {
     if (!bullets.length) continue;
     lines.push(`## ${heading}`);
-    for (const bullet of bullets) lines.push(`- ${bullet}`);
+    for (const bullet of bullets) {
+      lines.push(`- ${bullet.summary.trim()}`);
+      // Indented so the paragraph(s) stay inside the bullet they explain;
+      // a blank line only appears between multiple real paragraphs. Must match
+      // the mechanical notes in release_manager.js.
+      (bullet.details || []).forEach((paragraph, index) => {
+        if (index > 0) lines.push("");
+        lines.push(`  ${paragraph.trim()}`);
+      });
+    }
     lines.push("");
   }
   if (helpWanted) {
@@ -162,7 +207,7 @@ async function aiReleaseNotes(changes, helpWanted, repo, { github, context, core
   const [token, credits] = await Promise.all([accessToken(core), issueAuthors(changes, github, context)]);
   const result = await callClaude(token, changes, houseStyle);
 
-  if (!isStringArray(result.new_features) || !isStringArray(result.bug_fixes)) {
+  if (!isBulletArray(result.new_features) || !isBulletArray(result.bug_fixes)) {
     throw new Error(`Unexpected shape from emit_release_notes: ${JSON.stringify(result)}`);
   }
 

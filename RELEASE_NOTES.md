@@ -43,6 +43,14 @@ release notes for one (see `.github/scripts/ai_release_notes.js`).
   helps nobody. The test is whether a user can act on the bullet, not whether
   it reaches a length. Keep it plain prose — no diff detail, no module names.
 
+  **Separate the body's points with a blank line.** Each blank-line-separated
+  block becomes one paragraph inside the bullet; everything inside a block is
+  re-flowed onto a single line, because git bodies are hand-wrapped at ~72
+  columns and GitHub would otherwise render every soft wrap as a hard break.
+  A `- ` list also starts a new paragraph per item, so a list no longer welds
+  itself into one unreadable run-on — but prose is still the house style, and
+  one commit making two unrelated points is usually two commits.
+
   Other types are never published, so their body only needs to be clear to a
   maintainer. If the *subject* is genuinely hard to state in one user-facing
   line, that is a signal it is two commits, or a `refactor:` — reaching for
@@ -63,6 +71,13 @@ release notes for one (see `.github/scripts/ai_release_notes.js`).
   A section with nothing to say is omitted rather than filled with a placeholder
   sentence; `Credits` in particular is worth adding by hand whenever someone
   reported or tested the change.
+- **A bullet's first line stays short, and the detail goes underneath it.**
+  Both renderers — the mechanical one and the AI one in
+  `.github/scripts/ai_release_notes.js` — emit exactly that shape, and
+  anything that asks a bullet to carry its whole story in one sentence is a
+  bug in the generator, not a style. The symptom to watch for is a bullet
+  chaining unrelated facts with semicolons; that is a paragraph that was
+  flattened, and it reads worse than the commit it came from.
 - Leave dev-only changes (gitignore, CI, tooling) out of the notes.
 - **If the repo has open `help wanted` issues, link them before the footer.**
   One line, e.g. `🙋 [N open questions need a real parcel to answer](https://github.com/ha-parcel-integrations/<repo>/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)`.

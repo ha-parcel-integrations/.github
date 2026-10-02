@@ -27,6 +27,7 @@ const SUBJECT_ISSUE_REF = /\(#(\d+)\)/g;
 // A squash merge composes the body from the squashed subjects, which are
 // already the bullets above.
 const SQUASHED_SUBJECT = /^\* /;
+const LIST_MARKER = /^\s*[-*] /;
 
 function commitDetails(bodyLines) {
   const lines = bodyLines
@@ -39,17 +40,28 @@ function commitDetails(bodyLines) {
   // every one of those soft line breaks as a hard <br>. Re-flow each
   // wrapped paragraph into a single line so it reads as prose; a blank
   // line in the commit body still starts a new paragraph.
+  //
+  // So does a list marker, even without a blank line before it. The house
+  // style asks for prose, but maintainers do write "- " lists, and re-flowing
+  // one into a single paragraph welds every item together into something
+  // nobody can read.
   const paragraphs = [];
   let current = [];
+  const flush = () => {
+    if (current.length) paragraphs.push(current.join(" "));
+    current = [];
+  };
   for (const line of lines) {
     if (line) {
-      current.push(line);
-    } else if (current.length) {
-      paragraphs.push(current.join(" "));
-      current = [];
+      if (LIST_MARKER.test(line)) flush();
+      // Trimmed, or a hanging-indented continuation line leaves a double
+      // space in the middle of the re-flowed paragraph.
+      current.push(line.trim());
+    } else {
+      flush();
     }
   }
-  if (current.length) paragraphs.push(current.join(" "));
+  flush();
   return paragraphs;
 }
 
