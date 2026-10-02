@@ -117,7 +117,7 @@ const BULLET_SCHEMA = {
       type: "array",
       items: { type: "string" },
       description:
-        "Optional prose paragraphs expanding the summary, each a plain paragraph with no line breaks and no list syntax. Use one per distinct point: what they will now see, what they had to do before, what still will not work. Omit entirely when the summary says everything.",
+        "Optional prose paragraphs expanding the summary, each a plain paragraph with no line breaks and no list syntax. One is usually enough: what they will now see, what they had to do before, or what still will not work. Omit entirely when the summary says everything, and never pad.",
     },
   },
   required: ["summary"],
@@ -154,10 +154,11 @@ ${houseStyle}
 Additional hard rules for this task:
 - Never invent a fact that isn't in the input commits. If a detail isn't there, leave it out rather than guessing.
 - Never mention internal code: field/function/module names, status codes, or enum values (e.g. "K01", "in_transit", "observationCode") unless it is literally text the user sees in the Home Assistant UI (a quoted notification string is fine to keep).
-- Merge multiple commits that describe the same user-visible change into one bullet rather than listing them separately.
-- A commit that fixes two unrelated things is still one bullet, because it is one commit: say so in the summary at the level both share, and give each one its own paragraph in details. Never chain them into a single sentence with semicolons.
-- Keep the commit's own structure. A body written as several paragraphs or points becomes several details paragraphs, in the same order — do not flatten it, and do not pad a one-line commit with details it did not have.
-- Preserve any trailing "(#N)" issue reference verbatim, on the summary line.
+- You are the release's editor, not a transcriber of its commits. Rewrite, shorten and restructure freely: keep every fact you publish traceable to the input and keep the essence intact, but the wording, the order and the shape are yours to choose.
+- Write release notes, not essays. A bullet's summary plus at most one short paragraph is the normal size. A second or third paragraph has to earn its place by telling the reader something they can act on.
+- Cut everything a user cannot act on, however well the commit argues it: why one design was chosen over another, what alternative was rejected, how the change came about, and edge cases they would not recognise. That reasoning belongs in the commit and the code, not in the release.
+- Split and merge by user-visible change, never by commit. One commit describing two unrelated changes becomes two bullets; several commits describing one change become one bullet. Never chain unrelated facts into one sentence with semicolons.
+- Preserve any trailing "(#N)" issue reference verbatim on the summary line. When you split a commit that carries one, it goes on the bullet it actually refers to.
 - A type with nothing to say gets an empty array, not an invented bullet.`;
 }
 
@@ -249,12 +250,20 @@ async function aiReleaseNotes(changes, helpWanted, repo, { github, context, core
     throw new Error(`Unexpected shape from emit_release_notes: ${JSON.stringify(result)}`);
   }
 
-  const expectedFeat = changes.filter((change) => change.type === "feat").length;
-  const expectedFix = changes.filter((change) => change.type === "fix").length;
-  // Bullets may be merged, never invented: more bullets than source commits
-  // of that type means the model added something that wasn't there.
-  if (result.new_features.length > expectedFeat || result.bug_fixes.length > expectedFix) {
-    throw new Error("Model returned more bullets than source commits; discarding to avoid inventing content.");
+  // Bullets are split and merged by user-visible change, so a bullet count that
+  // differs from the commit count is expected and no longer a signal. What a
+  // commit set still cannot yield is more bullets than it holds distinct points
+  // — its subject plus each paragraph of its body — so that is the bound, and it
+  // still forbids any bullet at all for a type with no commits.
+  const distinctPoints = (type) =>
+    changes
+      .filter((change) => change.type === type)
+      .reduce((total, change) => total + 1 + (change.details?.length || 0), 0);
+  if (
+    result.new_features.length > distinctPoints("feat") ||
+    result.bug_fixes.length > distinctPoints("fix")
+  ) {
+    throw new Error("Model returned more bullets than the source commits hold points; discarding to avoid inventing content.");
   }
 
   return render(

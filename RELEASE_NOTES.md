@@ -16,9 +16,12 @@ release notes for one (see `.github/scripts/ai_release_notes.js`).
 ## Writing the commit (this is the note)
 
 - **A `feat:`/`fix:` commit message is the release note.** Release automation
-  copies the subject verbatim into `New features` or `Bug fixes` and indents
-  the body underneath it as part of the same bullet, so write **both** for the
-  person updating the integration, not for the diff. Say what changed *for them* and
+  turns the subject into a bullet under `New features` or `Bug fixes` and the
+  body into the prose underneath it, so write **both** for the person updating
+  the integration, not for the diff. The generator may condense, split or
+  reword that — see [Editing is the generator's job](#editing-is-the-generators-job)
+  — so the body's job is to carry the facts, user-facing and complete; it is
+  not a final text nobody may touch. Say what changed *for them* and
   name the thing they see — the sensor, the setting, the notification — not the
   module, function or field that moved. Avoid the vague verbs that read fine in
   a diff and say nothing in a changelog: *improve*, *standardize*, *expose*,
@@ -66,6 +69,16 @@ release notes for one (see `.github/scripts/ai_release_notes.js`).
   regenerated notes as a PR comment instead, so the new change is still
   visible and folding it in stays a human decision. An unedited body is
   regenerated in place as before.
+- <a id="editing-is-the-generators-job"></a>**Editing is the generator's job,
+  not transcription.** `ai_release_notes.js` reads the `feat:`/`fix:` commits
+  since the last release and writes the notes from them: it rewrites, shortens
+  and restructures, splits one commit that describes two unrelated changes into
+  two bullets, and merges several commits describing one change into one. Every
+  published fact still has to come from those commits — nothing invented, and
+  the essence unchanged — but the wording and the shape are the generator's
+  call. A bullet plus at most one short paragraph is the normal size; the
+  reasoning a commit body gives for *why* a change was built the way it was
+  does not survive into the release, because the reader cannot act on it.
 - **Release notes are user-facing only.** Use the shared `##` house style
   (`New features`, `Bug fixes`, `Other improvements`, `Credits`) and never
   cross-reference other repos. A bullet is one line, optionally followed by
