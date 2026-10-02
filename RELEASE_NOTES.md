@@ -61,16 +61,21 @@ release notes for one (see `.github/scripts/ai_release_notes.js`).
 - **The release PR body is the release, verbatim — edit it before merging.**
   That is where the judgement a rule cannot make belongs: naming who reported an
   issue, merging two commits into one clearer bullet, adding context a subject
-  had no room for. A later `feat:`/`fix:` push regenerates the body, so edit it
-  shortly before merging.
+  had no room for. **An edited body is never overwritten:** a later
+  `feat:`/`fix:` push notices the edit, leaves the body alone and posts the
+  regenerated notes as a PR comment instead, so the new change is still
+  visible and folding it in stays a human decision. An unedited body is
+  regenerated in place as before.
 - **Release notes are user-facing only.** Use the shared `##` house style
   (`New features`, `Bug fixes`, `Other improvements`, `Credits`) and never
   cross-reference other repos. A bullet is one line, optionally followed by
   indented paragraphs that expand it — that indentation is what keeps them
   inside the bullet, so don't hard-wrap a bullet's own first line.
   A section with nothing to say is omitted rather than filled with a placeholder
-  sentence; `Credits` in particular is worth adding by hand whenever someone
-  reported or tested the change.
+  sentence; `Credits` is generated from the reporters and commenters on every
+  issue a commit references, and is still worth extending by hand for anyone
+  who tested outside an issue. Maintainers are never credited — the
+  tester-request issues are opened by one, so the reporters are the commenters.
 - **A bullet's first line stays short, and the detail goes underneath it.**
   Both renderers — the mechanical one and the AI one in
   `.github/scripts/ai_release_notes.js` — emit exactly that shape, and

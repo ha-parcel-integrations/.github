@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { aiReleaseNotes } = require("./ai_release_notes.js");
@@ -151,6 +152,76 @@ async function openHelpWanted(github, context) {
   return issues.filter((issue) => !issue.pull_request).length;
 }
 
+// The release PR body is the release, and the house style asks a maintainer to
+// edit it before merging — but every later feat:/fix: push regenerates it and
+// used to throw that editing away. A fingerprint of what the generator last
+// wrote tells the two apart: body still matching it, overwrite freely; body
+// changed, a human has been here.
+const NOTES_FINGERPRINT = /\n*<!-- notes-sha: ([0-9a-f]{64}) -->\s*$/;
+
+// GitHub hands a PR body back with CRLF line endings and its own trailing
+// whitespace, so the fingerprint is taken over a normalised form. Without
+// this, a body nobody touched reads as edited and the notes would never
+// regenerate again.
+function canonical(notes) {
+  return notes.replace(/\r\n/g, "\n").replace(/\s+$/, "");
+}
+
+function fingerprint(notes) {
+  return crypto.createHash("sha256").update(canonical(notes)).digest("hex");
+}
+
+function stamp(notes) {
+  return `${canonical(notes)}\n\n<!-- notes-sha: ${fingerprint(notes)} -->`;
+}
+
+function editedByHand(body) {
+  const normalised = (body || "").replace(/\r\n/g, "\n");
+  const match = NOTES_FINGERPRINT.exec(normalised);
+  // No stamp at all means it predates this check or was written by hand; either
+  // way, keeping it is the safe choice.
+  if (!match) return true;
+  return fingerprint(normalised.slice(0, match.index)) !== match[1];
+}
+
+async function openReleasePr(github, context) {
+  const { data: pulls } = await github.rest.pulls.list({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    state: "open",
+    head: `${context.repo.owner}:automation/release`,
+    per_page: 1,
+  });
+  return pulls[0] || null;
+}
+
+// Returns the body to hand to create-pull-request: the freshly stamped notes,
+// or the maintainer's own edited body with the regenerated notes posted as a
+// comment instead of silently replacing their work.
+async function bodyPreservingEdits(notes, { github, context, core }) {
+  let existing;
+  try {
+    existing = await openReleasePr(github, context);
+  } catch (error) {
+    core.warning(`Could not read the open release PR (${error.message}); writing the generated notes.`);
+    return stamp(notes);
+  }
+  if (!existing || !editedByHand(existing.body)) return stamp(notes);
+
+  try {
+    await github.rest.issues.createComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: existing.number,
+      body: `This PR's body was edited by hand, so it was left alone. Here are the regenerated notes, including the change that just landed — fold in whatever is worth keeping.\n\n---\n\n${notes}`,
+    });
+    core.notice(`Release PR #${existing.number} was edited by hand; kept it and posted the regenerated notes as a comment.`);
+  } catch (error) {
+    core.warning(`Could not post the regenerated notes as a comment (${error.message}); the PR body was still left as edited.`);
+  }
+  return existing.body;
+}
+
 function writeManifestVersion(version) {
   const path = process.env.MANIFEST_PATH;
   const original = fs.readFileSync(path, "utf8");
@@ -204,9 +275,11 @@ module.exports = async ({ github, context, core }) => {
     notes = releaseNotes(changes, helpWanted, repo);
   }
 
+  const body = await bodyPreservingEdits(notes, { github, context, core });
+
   core.setOutput("has_release", "true");
   core.setOutput("version", version);
-  core.setOutput("notes", notes);
+  core.setOutput("notes", body);
   core.notice(`Proposing ${version} (${tag} + ${changes.length} change(s)).`);
   core.info(`Release notes:\n${notes}`);
 };

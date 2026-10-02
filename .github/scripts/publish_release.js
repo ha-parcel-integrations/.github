@@ -76,7 +76,9 @@ module.exports = async ({ github, context, core }) => {
       tag_name: version,
       target_commitish: sha,
       name: version,
-      body: (releasePr.body || "").trim(),
+      // The generator's fingerprint marker (see release_manager.js) belongs to
+      // the PR, not to the published notes.
+      body: (releasePr.body || "").replace(/\n*<!-- notes-sha: [0-9a-f]{64} -->\s*$/, "").trim(),
       draft: true,
     }));
   }
