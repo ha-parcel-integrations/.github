@@ -255,6 +255,15 @@ across the suite; run it before adding a language and after changing one.
   `outgoing`, and `outgoing_delivered`) carry those same icon meanings.
 - `check_policy.py` validates each of these only when the corresponding sensor
   is configured in `icons.json`; optional summary sensors are not required.
+- **The calendar and refresh-button icons are required, not optional.** A
+  repo with a `calendar.py` must give `calendar.deliveries` the icon
+  `mdi:truck-delivery-outline`, and one with a `button.py` must give
+  `button.refresh` the icon `mdi:refresh`. Those entities exist exactly when
+  their platform module does, so unlike a summary sensor there is no
+  "carrier opted out" case — a missing icon is a missing icon, and
+  `check_policy.py` fails the build for it. (ha-ppl-cz shipped without the
+  calendar icon for several releases because the old check read only
+  `entity.sensor`.)
 
 ## Repo hygiene
 

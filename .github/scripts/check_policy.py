@@ -36,6 +36,15 @@ AGGREGATOR_SENSOR_ICONS = {
 }
 
 
+# A platform file means the entity exists, so its icon is not optional the way
+# a summary sensor is. Each entry is (platform module, icons.json section,
+# translation key, icon).
+PLATFORM_ENTITY_ICONS = (
+    ("calendar.py", "calendar", "deliveries", "mdi:truck-delivery-outline"),
+    ("button.py", "button", "refresh", "mdi:refresh"),
+)
+
+
 def fail(message: str) -> None:
     """Print a policy failure in the GitHub Actions error format."""
     print(f"ERROR: {message}")
@@ -62,6 +71,42 @@ def check_summary_sensor_icons(domain_dir: Path, domain: str) -> int:
         if actual_icon != expected_icon:
             fail(
                 f"icons.json sensor {key!r} must use {expected_icon!r}, "
+                f"not {actual_icon!r}"
+            )
+            failures += 1
+
+    return failures
+
+
+def check_platform_entity_icons(domain_dir: Path, domain: str) -> int:
+    """Require the calendar and button icons wherever those platforms exist.
+
+    Unlike a summary sensor, which a carrier may legitimately not implement,
+    these two are present exactly when their platform module is — so here a
+    missing icon is a missing icon, not an opted-out entity.
+    """
+    icons_path = domain_dir / "icons.json"
+    if not icons_path.is_file():
+        return 0  # already reported by check_summary_sensor_icons
+
+    icons = json.loads(icons_path.read_text()).get("entity", {})
+    failures = 0
+
+    for module, section, key, expected_icon in PLATFORM_ENTITY_ICONS:
+        if not (domain_dir / module).is_file():
+            continue
+        entry = icons.get(section, {}).get(key)
+        if entry is None:
+            fail(
+                f"custom_components/{domain}/{module} exists, so icons.json "
+                f"must give {section}.{key} the icon {expected_icon!r}"
+            )
+            failures += 1
+            continue
+        actual_icon = entry.get("default")
+        if actual_icon != expected_icon:
+            fail(
+                f"icons.json {section} {key!r} must use {expected_icon!r}, "
                 f"not {actual_icon!r}"
             )
             failures += 1
@@ -185,6 +230,7 @@ def main() -> int:
         failures += 1
 
     failures += check_summary_sensor_icons(domain_dir, domain)
+    failures += check_platform_entity_icons(domain_dir, domain)
     failures += check_canonical_pickup_sources(domain_dir)
     failures += check_counter_units(domain_dir)
 
