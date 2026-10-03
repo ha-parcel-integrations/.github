@@ -198,6 +198,50 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   file in a repo; only the leaf string values change. Brand/carrier names,
   placeholders (`{…}`) and service/attribute identifiers are never translated.
 
+## Shared entity vocabulary (integrations)
+
+The strings a user reads on a dashboard say the same thing in every carrier.
+This covers the summary and per-parcel sensor names, their
+`unit_of_measurement`, the `deliveries` calendar, the `refresh` button and the
+`delivered_filter_type` selector options — the *entity layer*.
+
+- **One word for "parcel" per language, across the whole suite.** Use the term
+  the other repos already use, not the carrier's own house word. GLS Czech said
+  `balík`, DHL German `Sendung`, Posti Finnish `lähetys` and InPost Polish
+  `paczka`; all four were brought in line with the suite (`zásilka`, `Paket`,
+  `paketti`, `przesyłka`). A carrier's marketing vocabulary is not a reason to
+  diverge.
+- **Every counter in one translation file carries the same
+  `unit_of_measurement`.** Mixing them within a file — DHL and FedEx counted
+  `awaiting_pickup` in a different word than the rest in five languages — is
+  the most common form of this drift. `check_policy.py` enforces it.
+- **For languages that inflect after a numeral, the unit is nominative
+  plural**: `zásilky`, `zásielky`, `przesyłki`, `paketi`, `siuntos`, `pakas`.
+  Czech, Slovak, Polish, Slovenian, Croatian, Lithuanian and Latvian all
+  decline differently at 1, at 2–4 and at 5+, so no single form is correct for
+  every count; the suite picks nominative plural and stays with it. Finnish
+  keeps the partitive singular (`pakettia`), which *is* correct after a number.
+- **`en_route_to_pickup_point` names the carrier's own network and is the
+  deliberate exception** — "En route to ParcelShop", "ServicePoint", "PostNL
+  Point", "paketomat". Leave those alone; everything else in the entity layer
+  converges.
+- **Outside the entity layer, the other word is often the right one.** Setup,
+  options and service prose keep the domain term even when it differs from the
+  entity vocabulary: a tracking number is a `Sendungsnummer` in German whatever
+  the item is called, and InPost's locker is a `Paczkomat`. Never blanket
+  replace one stem with another across a whole file.
+- **Renaming an entity string moves the entity ID of entities created
+  afterwards.** Home Assistant derives the object ID from the name in the
+  instance's own language when that language is in its `NATIVE_ENTITY_IDS` set
+  (nl, de, fr, es, pl, cs, sk, hr, sl, lt, lv, fi, pt-BR and more), falling
+  back to English otherwise. Existing entities keep the ID stored in the
+  registry, so nothing breaks — but two installations set up either side of the
+  rename end up with different IDs. Align early rather than late, and say so in
+  the release note.
+
+`tools/translation_report.py` lists every entity-layer string that differs
+across the suite; run it before adding a language and after changing one.
+
 ## Entity icons (integrations)
 
 - Shared summary sensors use the same default icon wherever they are exposed:

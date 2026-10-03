@@ -92,6 +92,53 @@ def check_canonical_pickup_sources(domain_dir: Path) -> int:
     return failures
 
 
+# Counters that all mean "a number of parcels". The letters sensor is a
+# genuinely different unit and is excluded by name.
+COUNTER_SENSORS = (
+    "awaiting_pickup",
+    "delivered",
+    "delivered_parcels",
+    "en_route_to_pickup_point",
+    "incoming",
+    "incoming_parcels",
+    "outgoing",
+    "outgoing_delivered",
+    "outgoing_delivered_parcels",
+    "outgoing_parcels",
+)
+
+
+def check_counter_units(domain_dir: Path) -> int:
+    """Require one word for a parcel across the counters of each language.
+
+    Cross-repo wording cannot be seen from inside one repository, but a file
+    that counts in two different words is always wrong, and that is how this
+    drifts in practice.
+    """
+    failures = 0
+    paths = [domain_dir / "strings.json"]
+    paths += sorted((domain_dir / "translations").glob("*.json"))
+
+    for path in paths:
+        if not path.is_file():
+            continue
+        sensors = json.loads(path.read_text()).get("entity", {}).get("sensor", {})
+        units = {
+            key: sensors[key]["unit_of_measurement"]
+            for key in COUNTER_SENSORS
+            if isinstance(sensors.get(key), dict) and "unit_of_measurement" in sensors[key]
+        }
+        if len(set(units.values())) > 1:
+            listed = ", ".join(f"{key}={unit!r}" for key, unit in sorted(units.items()))
+            fail(
+                f"{path.name} counts parcels in more than one word ({listed}); "
+                f"every counter in one language uses the same unit"
+            )
+            failures += 1
+
+    return failures
+
+
 def main() -> int:
     """Check the deterministic public-repository conventions."""
     root = Path.cwd()
@@ -139,6 +186,7 @@ def main() -> int:
 
     failures += check_summary_sensor_icons(domain_dir, domain)
     failures += check_canonical_pickup_sources(domain_dir)
+    failures += check_counter_units(domain_dir)
 
     if not failures:
         print("Policy checks passed.")
