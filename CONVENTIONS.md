@@ -382,9 +382,14 @@ the core rule.
 - **First refresh runs in `__init__.py`** (before forwarding platforms), so a
   transient fetch failure fails setup cleanly and Home Assistant retries — never
   in a platform.
-- Unmapped statuses/events log a **one-shot warning** with a copy-paste
+- **Unmapped status: map, else history, else warn.** An unrecognised carrier
+  status or code does not go straight to `ParcelStatus.UNKNOWN` — fall back to
+  the newest history event that *does* map, and only then to `unknown`. A
+  parcel whose newest scan carries a word we've never seen is almost never a
+  parcel in an unknown state; its previous scans still say where it is. Either
+  way the unknown value logs a **one-shot warning** with a copy-paste
   `issues/new` line; users report them via the *Unrecognised parcel status*
-  issue template.
+  issue template. Log the key or code, never a value that could carry PII.
 - **Pickup point, not ServicePoint/parcel shop/locker.** Use "pickup point"
   as the one generic term for this concept in docs, conventions, and any
   new shared identifier — it already matches `ParcelStatus.AT_PICKUP_POINT`
