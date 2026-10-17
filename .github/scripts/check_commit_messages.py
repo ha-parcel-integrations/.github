@@ -11,6 +11,10 @@ CONVENTIONAL = re.compile(
     r"^(?:feat|fix|refactor|docs|test|ci|chore|build|perf|style|revert)(?:\([^)]+\))?!?: .+"
 )
 RELEASE_BUMP = re.compile(r"^Bump version to \d+\.\d+\.\d+(?:b\d+)?(?: \(#\d+\))?$")
+# A release PR merged with a merge commit instead of a squash. Rewriting main is
+# not an option, and the commit would otherwise fail every scheduled run until
+# the release it blocks has been tagged.
+RELEASE_MERGE = re.compile(r"^Merge pull request #\d+ from [^/\s]+/automation/release$")
 
 # Merged Dependabot commits keep Dependabot as author but carry GitHub's own
 # subject and body, which no repository rule can influence.
@@ -36,6 +40,9 @@ def main() -> int:
             continue
         lines = message.rstrip().split("\n")
         subject = lines[0]
+        if RELEASE_MERGE.fullmatch(subject):
+            print(f"SKIP: {sha[:7]} is a release PR merge commit")
+            continue
         if not (CONVENTIONAL.fullmatch(subject) or RELEASE_BUMP.fullmatch(subject)):
             print(f"ERROR: {sha[:7]} has a non-conventional subject: {subject}")
             failures += 1
