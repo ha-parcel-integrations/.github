@@ -2,6 +2,7 @@
 // merge settings, so accept it either way.
 const VERSION_IN_SUBJECT = /^Bump version to (\d+\.\d+\.\d+)(?: \(#\d+\))?$/;
 const RELEASE_BRANCH = "automation/release";
+const RELEASE_MERGE_SUBJECT = new RegExp(`^Merge pull request #\\d+ from [^/\\s]+/${RELEASE_BRANCH}$`);
 
 module.exports = async ({ github, context, core }) => {
   const sha = process.env.HEAD_SHA || context.sha;
@@ -10,7 +11,10 @@ module.exports = async ({ github, context, core }) => {
     repo: context.repo.repo,
     ref: sha,
   });
-  const match = VERSION_IN_SUBJECT.exec(commit.commit.message.split("\n", 1)[0]);
+  const [subject, ...body] = commit.commit.message.split("\n");
+  // A release PR merged without squashing leaves the bump title in the body.
+  const bumpSubject = RELEASE_MERGE_SUBJECT.test(subject) ? body.find((line) => line.trim()) || "" : subject;
+  const match = VERSION_IN_SUBJECT.exec(bumpSubject.trim());
   if (!match) {
     core.notice("The validated main commit is not a release bump.");
     return;
