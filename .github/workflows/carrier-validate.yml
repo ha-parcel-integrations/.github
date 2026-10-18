@@ -74,8 +74,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # ASYNC flags blocking calls on the event loop, which Home Assistant
+      # reports at runtime; it is extended here so every carrier gets it
+      # without a config change in each repository.
       - name: Ruff
         uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: check --extend-select ASYNC
 
   translations:
     name: Validate translations
@@ -114,6 +119,11 @@ jobs:
         env:
           DOMAIN: ${{ inputs.domain }}
         run: python .suite/.github/scripts/check_policy.py
+
+      - name: Check code rules
+        env:
+          DOMAIN: ${{ inputs.domain }}
+        run: python .suite/.github/scripts/check_code_rules.py
 
       - name: Install Pillow
         run: pip install pillow

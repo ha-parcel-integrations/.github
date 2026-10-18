@@ -362,6 +362,38 @@ the core rule.
 - **Synchronous request patterns** where a carrier's API forces them are
   acceptable; do not re-flag.
 
+## Code rules checked in CI (integrations)
+
+Reviews of the HACS submissions kept finding the same few mistakes, so they
+are checked mechanically. Fix the code; add an exception only when the reason
+is real, and write it next to the code.
+
+- **No blocking I/O on the event loop.** `ruff`'s `ASYNC` rules run in CI for
+  every carrier. `ZoneInfo(...)` is not caught by them, so
+  `check_code_rules.py` flags one built inside a function: constructing it reads
+  the tz file from disk the first time, which Home Assistant reports as blocking
+  I/O. Build it once at module level (`CARRIER_TZ = ZoneInfo("Europe/Rome")`),
+  or resolve a zone named in the data with
+  `await dt_util.async_get_time_zone(name)` in the coordinator and pass it in.
+  When the zone is already loaded off the loop, mark the call:
+  `# suite: allow zoneinfo (<reason>)`.
+- **`hacs.json` declares a Home Assistant minimum the code actually runs on.**
+  `check_code_rules.py` fails when the code uses an API newer than the declared
+  `homeassistant` (today `UpdateFailed(retry_after=...)` needs 2025.12.0 and
+  `DataUpdateCoordinator(config_entry=...)` 2024.11.0). Add a row to
+  `HA_VERSION_REQUIREMENTS` when a review finds another.
+- **No browser User-Agent unless the carrier refuses Home Assistant's own.**
+  Test it first: send a plain client User-Agent and a browser one to the same
+  endpoint and compare. Only when the carrier answers differently, send the
+  browser one and write down what it does without it:
+  `# suite: allow browser user-agent (<what the carrier does>)`.
+- **A claim in a README or `CLAUDE.md` is a promise.** If the docs describe an
+  option, a field, a redaction or a guarantee, the code must do it. Reviewers
+  read the two side by side.
+- **Warnings that guard an unconfirmed guess log once**, not on every poll (see
+  *Pre-1.0 releases*), and a status the main field does not map falls back to
+  the newest history event before it becomes `unknown`.
+
 ## Parcel contract (carrier integrations + aggregator)
 
 - **Canonical `ParcelStatus` enum** in each integration's `const.py`, kept
@@ -375,7 +407,11 @@ the core rule.
   `_delivery_time_changed` (plus the outgoing pair where the carrier
   supports it). The hop **to** `delivered` fires only the dedicated
   `_delivered` event, never also `_status_changed`. The payload is the
-  full normalised parcel (including `raw`) plus the account's `device_id`. The
+  full normalised parcel (including `raw`) plus the account's `device_id`. Event
+  data is written to the recorder database, so `raw` there can hold personal
+  data (HACS reviewers flag it on every submission); it stays in for now
+  because automations read it, and stripping it is a contract change for every
+  carrier and the aggregator. The
   **aggregator** re-emits these under a unified prefix with `raw` stripped —
   onboard a new carrier there by adding its HA domain to `KNOWN_CARRIERS` +
   `CARRIER_EVENT_PREFIXES`, nothing else.

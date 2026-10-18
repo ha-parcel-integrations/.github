@@ -30,6 +30,11 @@ jobs:
         with:
           args: check .github/scripts
 
+      - name: Test suite scripts
+        run: |
+          pip install --quiet pytest
+          python -m pytest tests -q
+
       - name: Check JavaScript syntax
         run: |
           for script in .github/scripts/*.js; do
