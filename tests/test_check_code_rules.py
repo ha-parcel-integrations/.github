@@ -86,3 +86,22 @@ def test_missing_declared_minimum_fails(tmp_path, monkeypatch, capsys):
     (root / "hacs.json").write_text("{}")
     code, out = _run(root, monkeypatch, capsys)
     assert code == 1 and "no `homeassistant` minimum" in out
+
+
+def test_sync_get_time_zone_inside_a_function_is_flagged(tmp_path, monkeypatch, capsys):
+    root = _repo(
+        tmp_path,
+        "from homeassistant.util import dt as dt_util\n\n\ndef f(name):\n"
+        "    return dt_util.get_time_zone(name)\n",
+    )
+    code, out = _run(root, monkeypatch, capsys)
+    assert code == 1 and "mod.py:5" in out
+
+
+def test_async_get_time_zone_is_fine(tmp_path, monkeypatch, capsys):
+    root = _repo(
+        tmp_path,
+        "from homeassistant.util import dt as dt_util\n\n\nasync def f(name):\n"
+        "    return await dt_util.async_get_time_zone(name)\n",
+    )
+    assert _run(root, monkeypatch, capsys)[0] == 0

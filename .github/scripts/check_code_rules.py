@@ -55,14 +55,19 @@ def _has_marker(lines: list[str], lineno: int, marker: str) -> bool:
 
 
 def _is_zoneinfo_call(node: ast.Call) -> bool:
+    """``ZoneInfo(...)`` or HA's synchronous ``dt_util.get_time_zone(...)``.
+
+    The latter is the same disk read behind a helper; only the ``async_``
+    variant is safe on the event loop.
+    """
     func = node.func
     if isinstance(func, ast.Name):
-        return func.id == "ZoneInfo"
-    return isinstance(func, ast.Attribute) and func.attr == "ZoneInfo"
+        return func.id in {"ZoneInfo", "get_time_zone"}
+    return isinstance(func, ast.Attribute) and func.attr in {"ZoneInfo", "get_time_zone"}
 
 
 def check_zoneinfo(path: Path, source: str, lines: list[str]) -> int:
-    """Flag ``ZoneInfo(...)`` built inside a function.
+    """Flag ``ZoneInfo(...)`` (or ``get_time_zone``) built inside a function.
 
     Building one reads the tz file from disk the first time, which Home
     Assistant reports as blocking I/O when it happens on the event loop. Build
