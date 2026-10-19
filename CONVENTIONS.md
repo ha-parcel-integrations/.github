@@ -182,8 +182,10 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   (`📦 Part of ha-parcel-integrations …`, linking to the docs site) **then the
   community line** (`💬 Questions or feedback? …`). The family line sits up top
   so someone arriving from HACS sees there are sibling carriers without having
-  to reach "Related integrations"; it never mentions the aggregator, which stays
-  optional. The template's `scaffold/README.md` carries both.
+  to reach "Related integrations". It names the aggregator only as *optional*
+  — never as a step — and it is the only place the intro says the repo is part of
+  the family, so don't repeat it in a sentence further down. The template's
+  `scaffold/README.md` carries both.
 
 ## Translations (integrations)
 
