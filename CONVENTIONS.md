@@ -178,6 +178,12 @@ guessed payload shapes, roles or fields we've never seen populated in live data.
   linking to that repo's `/releases`) belongs on every carrier repo and the
   aggregator; `ha-carrier-template/scaffold/README.md` carries it too so a
   newly bootstrapped carrier gets it for free.
+- **Two blockquotes follow the badge row, in this order: the family line**
+  (`📦 Part of ha-parcel-integrations …`, linking to the docs site) **then the
+  community line** (`💬 Questions or feedback? …`). The family line sits up top
+  so someone arriving from HACS sees there are sibling carriers without having
+  to reach "Related integrations"; it never mentions the aggregator, which stays
+  optional. The template's `scaffold/README.md` carries both.
 
 ## Translations (integrations)
 
