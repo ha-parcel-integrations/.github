@@ -74,13 +74,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      # ASYNC flags blocking calls on the event loop, which Home Assistant
-      # reports at runtime; it is extended here so every carrier gets it
-      # without a config change in each repository.
-      - name: Ruff
+      # Each carrier's ruff.toml is the template's copy of Home Assistant
+      # core's ruleset, ASYNC included; the version matches core's pin so a
+      # new ruff release can't turn every carrier red overnight.
+      - name: Ruff check
         uses: astral-sh/ruff-action@v4.1.0
         with:
-          args: check --extend-select ASYNC
+          version: "0.17.0"
+          args: check
+
+      - name: Ruff format
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          version: "0.17.0"
+          args: format --check
+
+  mypy:
+    name: Type-check with mypy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt mypy==2.4.0
+
+      - name: mypy
+        run: mypy custom_components/${{ inputs.domain }} --ignore-missing-imports
 
   translations:
     name: Validate translations
