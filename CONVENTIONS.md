@@ -376,6 +376,12 @@ Reviews of the HACS submissions kept finding the same few mistakes, so they
 are checked mechanically. Fix the code; add an exception only when the reason
 is real, and write it next to the code.
 
+- **Home Assistant core's lint rules, formatting and clean types.** Every
+  carrier's `ruff.toml` is the template's copy of core's ruleset, adapted only
+  where core assumes a newer Home Assistant than the suite supports; never edit
+  it per carrier. CI runs `ruff check`, `ruff format --check` (ruff 0.17.0) and
+  `mypy custom_components/<domain> --ignore-missing-imports`. A `noqa` or
+  `type: ignore` names its code and carries a short reason.
 - **No blocking I/O on the event loop.** `ruff`'s `ASYNC` rules run in CI for
   every carrier. `ZoneInfo(...)` is not caught by them, so
   `check_code_rules.py` flags one built inside a function: constructing it reads
