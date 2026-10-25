@@ -408,6 +408,44 @@ is real, and write it next to the code.
   *Pre-1.0 releases*), and a status the main field does not map falls back to
   the newest history event before it becomes `unknown`.
 
+## Engineering principles (integrations)
+
+The HACS reviews keep finding the same kinds of mistakes. These are the
+principles behind them; the lists after each are examples, not the full rule.
+`carrier-build` builds to them and `carrier-review` checks them.
+
+1. **Never block Home Assistant.** Anything that takes time stays off the
+   event loop and out of start-up: disk reads, waiting, heavy calculation (a
+   proof-of-work solver, hashing, parsing a large payload). Use the executor,
+   or do it once off the loop and pass the result in. CI catches the common
+   cases (§ Code rules checked in CI).
+2. **One entry never harms another.** A user may run two accounts or hubs.
+   Removing, disabling or reloading one must leave the services, entities and
+   data of the others working: shared services go away only when the last
+   loaded entry does.
+3. **A session survives a restart.** Whatever the carrier renews or rotates is
+   saved back to the config entry. A rejected login asks for sign-in once, via
+   Home Assistant's own reauth, never by starting flows by hand. Reauth tests
+   use an entry that has a unique id, as real ones do.
+4. **Sensitive data goes nowhere others can see it.** Codes that open
+   something (a locker PIN) or sign in (tokens) never reach `raw`, attributes
+   or events. Diagnostics redacts everything personal in what is actually
+   stored, spelled exactly as it is stored; compare the redaction list with a
+   real fixture.
+5. **Every source behaves the same.** A carrier with more than one source or
+   direction (inbox and tracking codes, incoming and outgoing) gives each the
+   same events, sensors and "last update"; a per-parcel sensor looks in every
+   list a parcel can be in.
+6. **What we promise is true.** The repository description, `hacs.json` name,
+   README and forms only claim what the code does and what has been seen on a
+   real parcel. Every option and service field appears in the schema, the
+   form and every translation, and every `{placeholder}` in a text is filled.
+7. **Ship it as users find it.** The README's install steps match where the
+   integration is listed. Once accepted into the HACS default list, the badge
+   says Default and the steps are "search HACS, install, restart". Before
+   submitting to hacs/default, go through the points above: each review round
+   costs a wait, and only one pull request per person can be open.
+
 ## Parcel contract (carrier integrations + aggregator)
 
 - **Canonical `ParcelStatus` enum** in each integration's `const.py`, kept
@@ -425,7 +463,8 @@ is real, and write it next to the code.
   data is written to the recorder database, so `raw` there can hold personal
   data (HACS reviewers flag it on every submission); it stays in for now
   because automations read it, and stripping it is a contract change for every
-  carrier and the aggregator. The
+  carrier and the aggregator. The one exception is a code that opens or signs
+  in to something (a locker PIN, a token): that never goes into `raw`. The
   **aggregator** re-emits these under a unified prefix with `raw` stripped —
   onboard a new carrier there by adding its HA domain to `KNOWN_CARRIERS` +
   `CARRIER_EVENT_PREFIXES`, nothing else.
