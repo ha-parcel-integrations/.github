@@ -81,6 +81,16 @@ def test_retry_after_needs_2025_12(tmp_path, monkeypatch, capsys, source):
     assert _run(ok, monkeypatch, capsys)[0] == 0
 
 
+def test_options_flow_with_reload_needs_2025_8(tmp_path, monkeypatch, capsys):
+    source = "from homeassistant.config_entries import OptionsFlowWithReload\n"
+    low = _repo(tmp_path / "low", source)
+    code, out = _run(low, monkeypatch, capsys)
+    assert code == 1 and "2025.8.0" in out
+
+    ok = _repo(tmp_path / "ok", source, hacs="2025.8.0")
+    assert _run(ok, monkeypatch, capsys)[0] == 0
+
+
 def test_missing_declared_minimum_fails(tmp_path, monkeypatch, capsys):
     root = _repo(tmp_path, "X = 1\n")
     (root / "hacs.json").write_text("{}")

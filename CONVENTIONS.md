@@ -394,7 +394,8 @@ is real, and write it next to the code.
 - **`hacs.json` declares a Home Assistant minimum the code actually runs on.**
   `check_code_rules.py` fails when the code uses an API newer than the declared
   `homeassistant` (today `UpdateFailed(retry_after=...)` needs 2025.12.0 and
-  `DataUpdateCoordinator(config_entry=...)` 2024.11.0). Add a row to
+  `DataUpdateCoordinator(config_entry=...)` 2024.11.0,
+  `OptionsFlowWithReload` 2025.8.0). Add a row to
   `HA_VERSION_REQUIREMENTS` when a review finds another.
 - **No browser User-Agent unless the carrier refuses Home Assistant's own.**
   Test it first: send a plain client User-Agent and a browser one to the same

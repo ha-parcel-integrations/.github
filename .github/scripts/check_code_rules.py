@@ -36,6 +36,7 @@ HA_VERSION_REQUIREMENTS = (
     (re.compile(r"UpdateFailed\([^)]*retry_after\s*=", re.DOTALL), "2025.12.0", "UpdateFailed(retry_after=...)"),
     (re.compile(r"\bconfig_entry\s*=\s*(?:self\.)?(?:config_)?entry\b"), "2024.11.0", "DataUpdateCoordinator(config_entry=...)"),
     (re.compile(r"\._get_reauth_entry\(|\._get_reconfigure_entry\(|\._abort_if_unique_id_mismatch\("), "2024.11.0", "config-flow reauth/reconfigure helpers"),
+    (re.compile(r"\bOptionsFlowWithReload\b"), "2025.8.0", "OptionsFlowWithReload"),
 )
 
 
