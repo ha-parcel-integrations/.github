@@ -3,6 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const { aiReleaseNotes } = require("./ai_release_notes.js");
 
+// Paused during the suite-wide rollout: the mechanical notes are rewritten by
+// hand there, so a model call per carrier would be spent for nothing.
+const AI_RELEASE_NOTES = false;
+
 const STABLE_VERSION = /^(\d+)\.(\d+)\.(\d+)$/;
 const RELEASE_SUBJECT = /^(feat|fix)(!)?(?:\([^)]+\))?: (.+)$/;
 const RELEASE_BUMP_SUBJECT = /^Bump version to \d+\.\d+\.\d+(?: \(#\d+\))?$/;
@@ -269,6 +273,7 @@ module.exports = async ({ github, context, core }) => {
     // Suite scripts are checked out two levels above this file (see
     // carrier-release.yml); CONVENTIONS.md lives at that root.
     const suitePath = path.join(__dirname, "..", "..");
+    if (!AI_RELEASE_NOTES) throw new Error("AI release notes are paused");
     notes = await aiReleaseNotes(changes, helpWanted, repo, { github, context, core, suitePath });
   } catch (error) {
     core.warning(`AI release notes failed, falling back to the mechanical notes: ${error.message}`);
