@@ -111,7 +111,7 @@ const BULLET_SCHEMA = {
     summary: {
       type: "string",
       description:
-        "The bullet's first line: one short user-facing sentence, no leading dash, no line breaks. Keep it to the one thing that changed — if you need a semicolon to chain separate facts, the rest belongs in details. Preserve any trailing \"(#N)\" verbatim.",
+        "The bullet's first line: one short user-facing sentence, no leading dash, no \"feat:\"/\"fix:\" prefix, no line breaks. Keep it to the one thing that changed — if you need a semicolon to chain separate facts, the rest belongs in details. Preserve any trailing \"(#N)\" verbatim.",
     },
     details: {
       type: "array",
@@ -158,6 +158,7 @@ Additional hard rules for this task:
 - Write release notes, not essays. A bullet's summary plus at most one short paragraph is the normal size. A second or third paragraph has to earn its place by telling the reader something they can act on.
 - Cut everything a user cannot act on, however well the commit argues it: why one design was chosen over another, what alternative was rejected, how the change came about, and edge cases they would not recognise. That reasoning belongs in the commit and the code, not in the release.
 - Split and merge by user-visible change, never by commit. One commit describing two unrelated changes becomes two bullets; several commits describing one change become one bullet. Never chain unrelated facts into one sentence with semicolons.
+- A summary is plain prose: never start it with a commit prefix such as "feat:" or "fix:" — the section heading already says which kind of change it is.
 - Preserve any trailing "(#N)" issue reference verbatim on the summary line. When you split a commit that carries one, it goes on the bullet it actually refers to.
 - A type with nothing to say gets an empty array, not an invented bullet.`;
 }
@@ -207,13 +208,21 @@ function isBulletArray(value) {
   );
 }
 
+// The house style's examples are commit subjects, so the model sometimes copies
+// their "fix:" prefix onto a bullet; the heading already says what kind it is.
+const COMMIT_PREFIX = /^(?:feat|fix)(?:\([^)]*\))?!?:\s*/i;
+
+function bulletSummary(summary) {
+  return summary.trim().replace(COMMIT_PREFIX, "");
+}
+
 function render(sections, helpWanted, credits, repo) {
   const lines = [];
   for (const [heading, bullets] of sections) {
     if (!bullets.length) continue;
     lines.push(`## ${heading}`);
     for (const bullet of bullets) {
-      lines.push(`- ${bullet.summary.trim()}`);
+      lines.push(`- ${bulletSummary(bullet.summary)}`);
       // Indented so the paragraph(s) stay inside the bullet they explain;
       // a blank line only appears between multiple real paragraphs. Must match
       // the mechanical notes in release_manager.js.
