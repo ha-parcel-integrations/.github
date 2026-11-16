@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { aiReleaseNotes } = require("./ai_release_notes.js");
+const { collectCredits, creditLines } = require("./credits.js");
 
 const STABLE_VERSION = /^(\d+)\.(\d+)\.(\d+)$/;
 const RELEASE_SUBJECT = /^(feat|fix)(!)?(?:\([^)]+\))?: (.+)$/;
@@ -66,7 +67,7 @@ function commitDetails(bodyLines) {
   return paragraphs;
 }
 
-function releaseNotes(changes, helpWanted, repo) {
+function releaseNotes(changes, helpWanted, credits, repo) {
   const sections = [
     ["New features", changes.filter((change) => change.type === "feat")],
     ["Bug fixes", changes.filter((change) => change.type === "fix")],
@@ -86,6 +87,7 @@ function releaseNotes(changes, helpWanted, repo) {
     }
     lines.push("");
   }
+  lines.push(...creditLines(credits));
   if (helpWanted) {
     const issueUrl = `https://github.com/${repo}/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22`;
     lines.push(`🙋 [${helpWanted} open question${helpWanted === 1 ? "" : "s"} ${helpWanted === 1 ? "needs" : "need"} a real parcel to answer](${issueUrl})`, "");
@@ -135,6 +137,7 @@ async function changesSinceRelease(github, context, tag, head) {
         : match[3],
       details: commitDetails(rest),
       issues,
+      author: commit.author,
     }];
   });
 }
@@ -261,6 +264,7 @@ module.exports = async ({ github, context, core }) => {
 
   const version = bumpedVersion(tag, changes);
   const helpWanted = await openHelpWanted(github, context);
+  const credits = await collectCredits(changes, { github, context, core });
   writeManifestVersion(version);
 
   const repo = `${context.repo.owner}/${context.repo.repo}`;
@@ -269,10 +273,10 @@ module.exports = async ({ github, context, core }) => {
     // Suite scripts are checked out two levels above this file (see
     // carrier-release.yml); CONVENTIONS.md lives at that root.
     const suitePath = path.join(__dirname, "..", "..");
-    notes = await aiReleaseNotes(changes, helpWanted, repo, { github, context, core, suitePath });
+    notes = await aiReleaseNotes(changes, helpWanted, credits, repo, { github, context, core, suitePath });
   } catch (error) {
     core.warning(`AI release notes failed, falling back to the mechanical notes: ${error.message}`);
-    notes = releaseNotes(changes, helpWanted, repo);
+    notes = releaseNotes(changes, helpWanted, credits, repo);
   }
 
   const body = await bodyPreservingEdits(notes, { github, context, core });

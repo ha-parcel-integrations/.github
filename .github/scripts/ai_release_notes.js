@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { creditLines } = require("./credits.js");
 
 const MODEL = "claude-sonnet-5";
 const ANTHROPIC_AUDIENCE = "https://api.anthropic.com";
@@ -31,73 +32,6 @@ async function accessToken(core) {
     throw new Error(`WIF exchange failed: ${data.error?.message || response.status}`);
   }
   return data.access_token;
-}
-
-// Whoever reported or tested on a referenced issue earns a credit: its author
-// and everyone who commented on it. Maintainers and bots never do — the
-// tester-request issues are opened by a maintainer, so the real reporters are
-// the commenters. Who tested a fix elsewhere (PRs, chat) isn't attributable,
-// so that stays a human's call.
-const MAINTAINER_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
-const MAINTAINER_PERMISSIONS = new Set(["admin", "maintain", "write"]);
-
-function earnsCredit(user, association) {
-  return Boolean(user?.login) && user.type !== "Bot" && !MAINTAINER_ASSOCIATIONS.has(association);
-}
-
-// `author_association` is not enough on its own. It only reads MEMBER for a
-// viewer who can *see* the org membership, and this org's memberships are
-// private, so the release token sees the maintainer as NONE and credited them
-// for reporting their own tester-request issue. Repo permission is visible to
-// the token and settles it.
-async function isMaintainer(login, { github, context, core }, cache) {
-  if (cache.has(login)) return cache.get(login);
-  let maintainer = false;
-  try {
-    const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      username: login,
-    });
-    maintainer = MAINTAINER_PERMISSIONS.has(data.permission);
-  } catch (error) {
-    if (error.status === 401 || error.status === 403) {
-      // The token cannot read permissions at all, so every login looks like an
-      // outside reporter. Credit them rather than dropping a real one, but say
-      // so: a wrong credit in the log beats a silent one in the release.
-      core.warning(`Could not check whether @${login} is a maintainer (${error.status}); crediting them — check the release PR.`);
-    }
-    // Anything else (a 404 for someone with no access) is simply not a
-    // maintainer, which is the common case.
-  }
-  cache.set(login, maintainer);
-  return maintainer;
-}
-
-async function issueAuthors(changes, { github, context, core }) {
-  const numbers = [...new Set(changes.flatMap((change) => change.issues || []))];
-  const candidates = [];
-  const consider = (user, association) => {
-    if (earnsCredit(user, association) && !candidates.includes(user.login)) candidates.push(user.login);
-  };
-  for (const number of numbers) {
-    const params = { owner: context.repo.owner, repo: context.repo.repo, issue_number: Number(number) };
-    try {
-      const { data: issue } = await github.rest.issues.get(params);
-      if (issue.pull_request) continue;
-      consider(issue.user, issue.author_association);
-      const comments = await github.paginate(github.rest.issues.listComments, { ...params, per_page: 100 });
-      for (const comment of comments) consider(comment.user, comment.author_association);
-    } catch {
-      // Deleted or inaccessible issue: no credit to give.
-    }
-  }
-  const cache = new Map();
-  const logins = [];
-  for (const login of candidates) {
-    if (!(await isMaintainer(login, { github, context, core }, cache))) logins.push(login);
-  }
-  return logins;
 }
 
 // A bullet is a short first line plus optional prose paragraphs underneath it,
@@ -237,9 +171,7 @@ function render(sections, helpWanted, credits, repo) {
     const issueUrl = `https://github.com/${repo}/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22`;
     lines.push(`🙋 [${helpWanted} open question${helpWanted === 1 ? "" : "s"} need a real parcel to answer](${issueUrl})`, "");
   }
-  if (credits.length) {
-    lines.push("## Credits", `- Thanks to ${credits.map((login) => `@${login}`).join(", ")} for testing and reporting.`, "");
-  }
+  lines.push(...creditLines(credits));
   lines.push("---", "", "📦 [See every supported carrier](https://ha-parcel-integrations.github.io/carriers/) — new ones land regularly.", "💛 [Support the project](https://ha-parcel-integrations.github.io/sponsor/)");
   return lines.join("\n");
 }
@@ -247,12 +179,9 @@ function render(sections, helpWanted, credits, repo) {
 // Renders AI-polished release notes; throws on anything that doesn't look
 // trustworthy so the caller can fall back to the mechanical notes instead of
 // publishing something malformed or hallucinated.
-async function aiReleaseNotes(changes, helpWanted, repo, { github, context, core, suitePath }) {
+async function aiReleaseNotes(changes, helpWanted, credits, repo, { github, context, core, suitePath }) {
   const houseStyle = fs.readFileSync(path.join(suitePath, "RELEASE_NOTES.md"), "utf8");
-  const [token, credits] = await Promise.all([
-    accessToken(core),
-    issueAuthors(changes, { github, context, core }),
-  ]);
+  const token = await accessToken(core);
   const result = await callClaude(token, changes, houseStyle);
 
   if (!isBulletArray(result.new_features) || !isBulletArray(result.bug_fixes)) {
