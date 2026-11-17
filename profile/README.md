@@ -8,7 +8,7 @@ Track your parcels in [Home Assistant](https://www.home-assistant.io/), across c
 
 ## How it works
 
-Install the integrations for the carriers you use through HACS. Each works independently and provides parcel sensors and delivery events for your Home Assistant setup.
+Install the integrations for the carriers you use through the Marketplace. Each works independently and provides parcel sensors and delivery events for your Home Assistant setup.
 
 If you use several carriers, the optional **Parcel Aggregator** brings them together into combined sensors, a deliveries calendar, and shared events. Write an automation once and use it across your deliveries.
 
