@@ -449,12 +449,18 @@ principles behind them; the lists after each are examples, not the full rule.
 
 ## Parcel contract (carrier integrations + aggregator)
 
+This section names the statuses, keys and events. **When each field is filled
+or emptied, and which sensor a parcel is in, is in
+[`PARCEL_CONTRACT.md`](PARCEL_CONTRACT.md)** — read it before changing a
+normaliser, a summary sensor, the calendar or the event logic.
+
 - **Canonical `ParcelStatus` enum** in each integration's `const.py`, kept
   identical across carriers, so cross-carrier automations can target
   `status: out_for_delivery` regardless of source.
-- **Normalised parcel shape** — every parcel exposes the same top-level keys
-  (`carrier`, `barcode`, `sender`, `receiver`, `status`, `raw_status`,
-  `delivered`, `planned_from`, `planned_to`, `history`, …).
+- **Normalised parcel shape** — every parcel exposes exactly these top-level
+  keys, in this order: `carrier`, `barcode`, `sender`, `receiver`, `status`,
+  `raw_status`, `delivered`, `delivered_at`, `planned_from`, `planned_to`,
+  `pickup`, `pickup_point`, `url`, `weight`, `dimensions`, `history`, `raw`.
 - **Canonical events** on the HA bus:
   `<carrier>_parcel_registered` / `_status_changed` / `_delivered` /
   `_delivery_time_changed` (plus the outgoing pair where the carrier
