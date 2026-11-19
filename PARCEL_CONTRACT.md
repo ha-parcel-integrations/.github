@@ -123,8 +123,9 @@ which carrier it is:
 | a window given as two dates | first day `00:00:00` | last day `23:59:59` |
 
 A carrier's single moment means "from then, during that day", so it is
-stretched to the end of that day. "Local" is the carrier's own zone, or the
-offset of the moment itself.
+stretched to the end of that day. "Local" is the carrier's own zone, also for a
+moment the carrier sends in UTC. A moment with no time left in its day (at or
+after `23:59:59`) has no `planned_to`.
 
 **When it is emptied.** Emptying applies to the normalised fields only; `raw`
 keeps the original.
