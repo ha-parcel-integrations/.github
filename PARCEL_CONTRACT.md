@@ -74,6 +74,10 @@ from it.
 delivery timestamp is an input to the **status mapping**. It is never OR-ed
 into `delivered` afterwards.
 
+A parcel the user sends back themselves (a webshop return, any outgoing parcel)
+is `DELIVERED` once it reaches its destination. `RETURNING` is for a parcel
+that is sent back to its sender.
+
 ### `delivered_at`
 
 - Set only when `delivered` is `True`. On an active parcel it is always `None`,
