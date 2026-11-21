@@ -238,14 +238,15 @@ What follows from these rules:
 
 ### 3.1 Which sensors a carrier exposes
 
-- `awaiting_pickup`: required when a real carrier status or code maps to
-  `AT_PICKUP_POINT`, because the aggregator reads ready parcels only from this
-  sensor. A carrier that never reaches `AT_PICKUP_POINT` leaves it out and
-  writes that decision in its `CLAUDE.md`. "Not yet known" is a reason to open
-  an issue, not an exemption.
-- `en_route_to_pickup_point`: only when `pickup` is known **before** arrival.
-  If `pickup` is only known at arrival, or is constantly `False`, this sensor
-  would always read 0, so leave it out.
+- Both pickup sensors, `awaiting_pickup` and `en_route_to_pickup_point`, exist
+  whenever the carrier can deliver to a pickup point, locker or shop at all.
+  Not having seen the status or flag on a real parcel yet is no reason to leave
+  them out: the sensor reads 0 until it is seen, and the missing evidence is
+  recorded in `PENDING_*` and the carrier's `CLAUDE.md`. The aggregator reads
+  ready parcels from `awaiting_pickup`, so a missing sensor loses them.
+- A carrier that cannot deliver to pickup points or lockers exposes neither
+  sensor, writes that decision in its `CLAUDE.md`, and sets `pickup` to a
+  constant `False`.
 
 ### 3.2 Sort order and retention
 
