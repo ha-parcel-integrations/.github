@@ -74,6 +74,14 @@ from it.
 delivery timestamp is an input to the **status mapping**. It is never OR-ed
 into `delivered` afterwards.
 
+An explicit delivered signal from the carrier wins over `AT_PICKUP_POINT`: a
+parcel that was collected from a pickup point is delivered, so the mapping
+returns `DELIVERED`. A signal that already fires when the parcel is dropped at
+the point (arrival, not collection) does not count; the status stays
+`AT_PICKUP_POINT`. On a `RETURNING` parcel the same signal counts only when
+it shows the parcel was delivered **at the sender**. Without that evidence the
+parcel stays `RETURNING` with `delivered` `False`.
+
 A parcel the user sends back themselves (a webshop return, any outgoing parcel)
 is `DELIVERED` once it reaches its destination. `RETURNING` is for a parcel
 that is sent back to its sender.
