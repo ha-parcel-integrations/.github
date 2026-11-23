@@ -15,9 +15,9 @@ is a bug.
 ## 1. Ground rules
 
 1. **Every key is always present**, in canonical order:
-   `carrier`, `barcode`, `sender`, `receiver`, `status`, `raw_status`,
-   `delivered`, `delivered_at`, `planned_from`, `planned_to`, `pickup`,
-   `pickup_point`, `url`, `weight`, `dimensions`, `history`, `raw`.
+   `carrier`, `barcode`, `sender`, `receiver`, `contents`, `status`,
+   `raw_status`, `delivered`, `delivered_at`, `planned_from`, `planned_to`,
+   `pickup`, `pickup_point`, `url`, `weight`, `dimensions`, `history`, `raw`.
    Unknown or not applicable is `None`, never an omitted key and never `""` or
    `0`.
 2. **`None` means "the carrier did not say".** Never invent a value: no default
@@ -54,6 +54,19 @@ from it.
 - `receiver` is the **addressee's name**, else `None`. It is never the pickup
   point and never a street address or location string.
 - A masked name (`J*** D***`) is published as the carrier sent it.
+
+### `contents`
+
+- `contents` is what the parcel holds, as one string, else `None`. It is never
+  `""`.
+- Whitespace (newlines, tabs, runs) collapses to single spaces, and the text is
+  cut hard at 120 characters, with no ellipsis.
+- Several items are joined `"A; B"`, de-duplicated. The full list stays in
+  `raw`.
+- Generic carrier text (a filler such as `"Consumer goods"`) is `None`. The
+  carrier's own field stays in `raw` untouched.
+- Precedence: the user's text, then a name the user set in the carrier's own
+  account, then the carrier's payload, then `None`.
 
 ### `status`, `raw_status`
 

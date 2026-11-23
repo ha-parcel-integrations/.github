@@ -458,9 +458,33 @@ normaliser, a summary sensor, the calendar or the event logic.
   identical across carriers, so cross-carrier automations can target
   `status: out_for_delivery` regardless of source.
 - **Normalised parcel shape** — every parcel exposes exactly these top-level
-  keys, in this order: `carrier`, `barcode`, `sender`, `receiver`, `status`,
-  `raw_status`, `delivered`, `delivered_at`, `planned_from`, `planned_to`,
-  `pickup`, `pickup_point`, `url`, `weight`, `dimensions`, `history`, `raw`.
+  keys, in this order: `carrier`, `barcode`, `sender`, `receiver`, `contents`,
+  `status`, `raw_status`, `delivered`, `delivered_at`, `planned_from`,
+  `planned_to`, `pickup`, `pickup_point`, `url`, `weight`, `dimensions`,
+  `history`, `raw`.
+- **`contents`** is `str | None`, top-level so it survives the aggregator's
+  `raw` stripping. Precedence: the user's text (stored by `track_parcel` /
+  `update_contents`) > a name the user set in the carrier's own account (Canada
+  Post `userDescription` only) > what the carrier's payload says > `None`.
+  `normalize_parcel` stays pure and fills only the carrier's value; the
+  coordinator overlays the user's text right after normalising, before sorting,
+  events and the delivered split, looked up by the stored tracking code, else
+  the barcode. A contents-only change fires no event. Text rules are in
+  [`PARCEL_CONTRACT.md`](PARCEL_CONTRACT.md).
+- **`update_contents` service** on every carrier: `tracking_code` (required),
+  `contents` (optional; empty or absent clears). It works for account-based
+  carriers and for codes not tracked yet. With several config entries it stores
+  in every entry whose coordinator holds the code, otherwise it raises an error
+  asking for the optional `config_entry_id`. `track_parcel`, where it exists,
+  gets an optional `contents` field (re-tracking replaces, empty clears). The
+  user's text lives in a Store per config entry (key
+  `<domain>.contents.<entry_id>`, 200 codes at most, oldest dropped, removed
+  with the entry), never in options. Diagnostics redacts it. `contents.py` is
+  identical across carriers (`clean_contents`, `join_contents`,
+  `normalize_code`, `ContentsStore`), copied from the template and separate
+  from the contract helper block. `"contents"` is in `CAPABILITIES` only when
+  the carrier itself supplies it (`PENDING_CAPABILITIES` while awaiting data);
+  user-supplied text alone is not a capability.
 - **Canonical events** on the HA bus:
   `<carrier>_parcel_registered` / `_status_changed` / `_delivered` /
   `_delivery_time_changed` (plus the outgoing pair where the carrier
