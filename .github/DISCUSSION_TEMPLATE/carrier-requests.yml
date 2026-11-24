@@ -17,6 +17,10 @@ body:
         Send it to us privately instead via
         [our contact form](https://yetanothersmarthome.com/contact-me/) —
         just mention which carrier and country it's for.
+
+        Comfortable with Python and want to build it yourself? Say so below,
+        and see [Build your own carrier](https://ha-parcel-integrations.github.io/build-a-carrier/)
+        for the template and how a carrier you built joins the suite.
   - type: dropdown
     id: kind
     attributes:
@@ -82,6 +86,7 @@ body:
         - "Yes — I receive parcels from them regularly"
         - "Yes, but only occasionally"
         - "No, I am just requesting it"
+        - "I would like to build it myself"
     validations:
       required: true
   - type: textarea
